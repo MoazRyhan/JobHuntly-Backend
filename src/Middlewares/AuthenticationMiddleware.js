@@ -4,25 +4,63 @@ import User_model from '../DB/Models/User_model.js';
 
 
 
-export const authentication_middleware = () =>{
-    return async ( req , res , next ) =>{
 
-        try {
-            const { access_token } = req.headers
+export const AuthenticationMiddleware = () => {
+  return async (req, res, next) => {
+    try {
+      const { access_token } = req.headers;
 
-            
-            next()
-        } catch (error) {
-            console.log(  "internal authentication middleware error  ==========>" , error );
-            res.status(500).json({ message : "internal authentication middleware error====>" , error })
-        }
+      if (!access_token) {
+        return res.status(401).json({ message: "please login first" });
+      }
 
+      // decode the data
+      const decoding_access_token = jwt.verify(
+        access_token,
+        process.env.JWT_ACCESS_TOKEN_SECRET_KEY
+      );
+
+      // find the data
+      const user = await User_model.findById(
+        decoding_access_token.id,
+        "-password -__v"
+      );
+      if (!user) {
+        return res.status(404).json({ message: "this user is not found" });
+      }
+
+      console.log(user._doc);
+
+      req.login_user = {
+        ...user._doc,
+        token: {
+          token_id: decoding_access_token.jti,
+          expiration_data: decoding_access_token.exp,
+        },
+      };
+
+      next();
+    } catch (error) {
+      console.log(
+        "internal authentication middleware error  ==========>",
+        error
+      );
+      res
+        .status(500)
+        .json({
+          message: "internal authentication middleware error====>",
+          error,
+        });
     }
-}
+  };
+};
 
 
 
-export const authorization_middleware = (allow_role) =>{
+
+
+//                ===================   still under test for black list  ========================
+export const AuthorizationMiddleware = (allow_role) =>{
     return async ( req , res , next ) =>{
  
         try {
