@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema(
     avatarUrl: String,
     isActive: { type: Boolean, default: true },
     lastLoginAt: Date,
+    refreshToken: { type: String, select: false},
   },
   { timestamps: true }
 );

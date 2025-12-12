@@ -36,6 +36,9 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     error = new ApiError(401, "Token expired");
   }
 
+
+  console.log(err);
+  
   res.status(error.statusCode).json({
     success: false,
     error: error.message || "Server Error",
