@@ -15,7 +15,6 @@ export const JOB_EMPLOYMENT_TYPES = {
   CONTRACT: "Contract"
 };
 // Create an array of the values for the Mongoose enum validator
-//error: JOB_TYPE not defined, replaced by JOB_EMPLOYMENT_TYPES
 export const jobEmploymentTypeValues = Object.values(JOB_EMPLOYMENT_TYPES);
 
 
@@ -104,25 +103,25 @@ export const SKILL_LEVEL = {
 };
 
 
-// // APPLICATION STATUS
-// export const APPLICATION_STATUS = {
-//   IN_REVIEW: "IN_REVIEW",
-//   INTERVIEWING: "INTERVIEWING",
-//   OFFERED: "OFFERED",
-//   HIRED: "HIRED",
-//   UNSUITABLE: "UNSUITABLE",
-//   DECLINED: "DECLINED",
-// };
+// APPLICATION STATUS
+export const APPLICATION_STATUS = {
+  IN_REVIEW: "IN_REVIEW",
+  INTERVIEWING: "INTERVIEWING",
+  OFFERED: "OFFERED",
+  HIRED: "HIRED",
+  UNSUITABLE: "UNSUITABLE",
+  DECLINED: "DECLINED",
+};
 
-// // EMPLOYMENT LEVEL (Optional Enum)
-// export const EMPLOYMENT_LEVEL = {
-//   INTERN: "INTERN",
-//   ENTRY: "ENTRY",
-//   MID: "MID",
-//   SENIOR: "SENIOR",
-//   LEAD: "LEAD",
-//   MANAGER: "MANAGER",
-// };
+// EMPLOYMENT LEVEL (Optional Enum)
+export const EMPLOYMENT_LEVEL = {
+  INTERN: "INTERN",
+  ENTRY: "ENTRY",
+  MID: "MID",
+  SENIOR: "SENIOR",
+  LEAD: "LEAD",
+  MANAGER: "MANAGER",
+};
 
 
 // COMPANY LINK TYPES (Optional Enum)
