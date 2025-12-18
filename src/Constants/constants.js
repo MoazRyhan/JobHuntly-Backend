@@ -15,7 +15,8 @@ export const JOB_EMPLOYMENT_TYPES = {
   CONTRACT: "Contract"
 };
 // Create an array of the values for the Mongoose enum validator
-export const jobEmploymentTypeValues = Object.values(JOB_TYPE);
+//error: JOB_TYPE not defined, replaced by JOB_EMPLOYMENT_TYPES
+export const jobEmploymentTypeValues = Object.values(JOB_EMPLOYMENT_TYPES);
 
 
 // JOB CATEGORIES
