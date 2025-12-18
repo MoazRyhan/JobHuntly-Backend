@@ -4,7 +4,6 @@ import { generateAccessToken  ,  generateRefreshToken,  verifyRefreshToken, } fr
 import { sendWelcomeEmail } from "./../../../Utils/email.utils.js"
 import bcrypt ,{ compareSync, hashSync } from "bcrypt";
 
-
 export const register = async (userData) => {
   const { fullName, email, password , rePassword } = userData;
 
@@ -48,6 +47,50 @@ export const register = async (userData) => {
   };
 };
 
+
+// export const register = async (userData) => {
+//   let user;
+
+//   try {
+//     const { fullName, email, password, rePassword } = userData;
+
+//     if (password !== rePassword)
+//       throw new ApiError(401, "Passwords do not match");
+
+//     const existingUser = await UserModel.findOne({ email });
+//     if (existingUser)
+//       throw new ApiError(400, "Email already exists");
+
+//     const password_hashed = hashSync(password, +process.env.PASSWORD_SALT);
+
+//     user = await UserModel.create({
+//       fullName,
+//       email,
+//       password: password_hashed,
+//     });
+
+//     const accessToken = generateAccessToken(user._id);
+//     const refreshToken = generateRefreshToken(user._id);
+
+//     user.refreshToken = refreshToken;
+//     await user.save();
+
+//     return {
+//       user: {
+//         id: user._id,
+//         fullName: user.fullName,
+//         email: user.email,
+//       },
+//       accessToken,
+//       refreshToken,
+//     };
+//   } catch (error) {
+//     if (user?._id) {
+//       await UserModel.findByIdAndDelete(user._id);
+//     }
+//     throw error;
+//   }
+// };
 
 
 
