@@ -7,5 +7,7 @@ const router=Router();
 
 router.get("/:companyId", getCompanyById);
 
+router.post("/", createCompany);
+
 
 export default router;

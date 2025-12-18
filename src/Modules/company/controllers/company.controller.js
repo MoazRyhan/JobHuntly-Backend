@@ -19,3 +19,16 @@ export const getCompanyById=async(req,res,next)=>{
     }
 }
 
+export const createCompany= async(req, res, next)=>{
+try{
+    const company= await createCompanyService(req.body);
+    res.status(201).json({
+        message: "Company created successfully",
+        data: company,
+    });
+}
+catch(error){
+    next(error);
+}
+}
+

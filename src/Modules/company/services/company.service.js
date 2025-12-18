@@ -8,3 +8,8 @@ export const getCompanyByIdService=async(companyId)=>{
     return company;
 }
 
+export const createCompanyService= async(companyData)=>{
+    const company= await CompanyModel.create(companyData);
+    return company;
+}
+
