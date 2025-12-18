@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { COMPANY_LINK_TYPE } from "../../Constants/constants";
+import { COMPANY_LINK_TYPE } from "../../Constants/constants.js";
 
 const CompanySchema = new mongoose.Schema(
   {
@@ -10,13 +10,23 @@ const CompanySchema = new mongoose.Schema(
     employeesRange: String,
     about: String,
     logoUrl: String,
-    hqCity: String,
-    hqCountry: String,
-    isVerified: { type: Boolean, default: false },
 
     countries: [{ code: String, name: String }],
-    links: [{ type: String,  enum: Object.values(COMPANY_LINK_TYPE ) }],
-    techStack: [{ name: String }],
+    links: [{ type: String, enum: Object.values(COMPANY_LINK_TYPE) }],
+    
+    // techStack now includes optional logo for frontend
+    techStack: [
+      {
+        name: String,
+        logo: String, // optional
+      }
+    ],
+
+    images: [
+      {
+        src: String,
+      }
+    ],
   },
   { timestamps: true }
 );
@@ -25,3 +35,4 @@ const CompanyModel =
   mongoose.models.Company || mongoose.model("Company", CompanySchema);
 
 export default CompanyModel;
+
