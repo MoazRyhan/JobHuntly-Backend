@@ -1,6 +1,6 @@
 import express from "express"
 import DataBase from "./DB/connection.js"
-import router_handler from "./Utils/router_handler.utils.js"
+import routerHandler from "./Utils/routerHandler.utils.js"
 import  dotenv  from "dotenv"
 
 
@@ -22,7 +22,7 @@ dotenv.config()
 
 
     //all the routers
-    router_handler( app ,express ) 
+    routerHandler( app ,express ) 
 
 
 
