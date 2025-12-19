@@ -1,6 +1,6 @@
 import  jwt  from 'jsonwebtoken';
 // import { BlacklistToken_Model } from './../DB/models/BlackList_token_model.js';
-import User_model from '../DB/Models/User_model.js';
+import UserModel from '../DB/Models/UserModel.js';
 
 
 
@@ -21,7 +21,7 @@ export const AuthenticationMiddleware = () => {
       );
 
       // find the data
-      const user = await User_model.findById(
+      const user = await UserModel.findById(
         decoding_access_token.id,
         "-password -__v"
       );
@@ -74,7 +74,7 @@ export const AuthorizationMiddleware = (allow_role) =>{
             if ( if_black_list) {return res.status(401).json({ message :"this token is expired please login again"  }) }
 
             // find the data
-            const User = await User_model.findByPk(decoding_access_token.id  )
+            const User = await UserModel.findByPk(decoding_access_token.id  )
             if (!User) { return res.status(404).json({ message :"this user is not found" }) }
             
             // console.log( User  , "ddddddddddddd" );

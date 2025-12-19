@@ -1,11 +1,11 @@
 import { asyncHandler } from "../../../Utils/asyncHandler.utils.js";
-import * as authService from "../services/auth.service.js";
+import * as SettingsApplicantService from "../services/SettingsApplicant.service.js";
 
 
 
 
-export const register = asyncHandler(async (req, res) => {
-  const result = await authService.register(req.body);
+export const updataProfile = asyncHandler(async (req, res) => {
+  const result = await SettingsApplicantService.updataProfile(req.body);
   res.status(201).json({ success: true, data: result });
 });
 
