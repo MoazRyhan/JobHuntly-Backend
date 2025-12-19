@@ -2,95 +2,80 @@ import UserModel from "../../../DB/Models/UserModel.js";
 import ApiError from "../../../Utils/ApiError.utils.js";
 import { generateAccessToken  ,  generateRefreshToken,  verifyRefreshToken, } from "./../../../Utils/tokens.utils.js";
 import { sendWelcomeEmail } from "./../../../Utils/email.utils.js"
-import bcrypt ,{ compareSync, hashSync } from "bcrypt";
+import bcrypt from "bcrypt";
 
-export const register = async (userData) => {
-  const { fullName, email, password , rePassword } = userData;
+export const register= async (userData) => {
+  let user;
+  try {
+    const {
+      userName,
+      companyName,
+      email,
+      password,
+      confirmPassword,
+      role,
+    } = userData;
 
-  if (password !== rePassword ) throw new ApiError(401, "the password and ans the rePassword must be identical") 
+    if (!role) {
+      throw new ApiError(400, "Role is required");
+    }
 
+    if (password !== confirmPassword) {
+      throw new ApiError(400, "Passwords do not match");
+    }
 
-  const existingUser = await UserModel.findOne({ $or: [{ email }, { fullName }] });
-
-  if (existingUser) {
-    if (existingUser.email === email) {
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
       throw new ApiError(400, "Email already exists");
     }
-    if (existingUser.fullName === fullName) {
-      throw new ApiError(400, "fullName already exists");
+
+    const passwordHashed = bcrypt.hashSync(
+      password,
+      Number(process.env.PASSWORD_SALT)
+    );
+
+    const name =
+      role === "user"
+        ? userName
+        : role === "company"
+        ? companyName
+        : null;
+
+    if (!name) {
+      throw new ApiError(400, "Name is required");
     }
+
+    user = await UserModel.create({
+      userName: name,
+      email,
+      password: passwordHashed,
+      role,
+    });
+
+    // const accessToken = generateAccessToken(user._id, user.role);
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    return {
+      user: {
+        id: user._id,
+        name: user.userName,
+        email: user.email,
+        role: user.role,
+      },
+      accessToken,
+      refreshToken,
+    };
+  } catch (error) {
+    if (user?._id) {
+      await UserModel.findByIdAndDelete(user._id);
+    }
+    throw error;
   }
-
-    // hash the password
-    const password_hashed =  hashSync(password , +process.env.PASSWORD_SALT )
-
-
-  const user = await UserModel.create({ fullName, email, password :password_hashed  });
-
-  const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
-
-  user.refreshToken = refreshToken;
-  await user.save();
-
-  await sendWelcomeEmail(user.fullName, user.email);
-
-  return {
-    user: {
-      id: user._id,
-      fullName: user.fullName,
-      email: user.email,
-      avatar: user.avatarUrl,
-    },
-    accessToken,
-    refreshToken,
-  };
 };
-
-
-// export const register = async (userData) => {
-//   let user;
-
-//   try {
-//     const { fullName, email, password, rePassword } = userData;
-
-//     if (password !== rePassword)
-//       throw new ApiError(401, "Passwords do not match");
-
-//     const existingUser = await UserModel.findOne({ email });
-//     if (existingUser)
-//       throw new ApiError(400, "Email already exists");
-
-//     const password_hashed = hashSync(password, +process.env.PASSWORD_SALT);
-
-//     user = await UserModel.create({
-//       fullName,
-//       email,
-//       password: password_hashed,
-//     });
-
-//     const accessToken = generateAccessToken(user._id);
-//     const refreshToken = generateRefreshToken(user._id);
-
-//     user.refreshToken = refreshToken;
-//     await user.save();
-
-//     return {
-//       user: {
-//         id: user._id,
-//         fullName: user.fullName,
-//         email: user.email,
-//       },
-//       accessToken,
-//       refreshToken,
-//     };
-//   } catch (error) {
-//     if (user?._id) {
-//       await UserModel.findByIdAndDelete(user._id);
-//     }
-//     throw error;
-//   }
-// };
 
 
 
