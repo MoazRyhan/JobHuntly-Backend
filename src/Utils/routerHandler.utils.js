@@ -1,6 +1,7 @@
 
 import errorHandlerMiddleware from "../Middlewares/ErrorHandlerMiddleware.js";
 import AuthRouter from "../Modules/auth/auth.routes.js"
+import MahmoudRouter from "../Modules/mahmoud/mahmoud.routes.js"; 
 
 
 
@@ -13,7 +14,8 @@ const routerHandler = async (app , express  ) => {
     
     app.use( "/auth" ,  AuthRouter )
     
-    
+    app.use("/api", MahmoudRouter);  
+
     
     
     

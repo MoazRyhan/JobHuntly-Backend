@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { COMPANY_LINK_TYPE } from "../../Constants/constants";
+import { COMPANY_LINK_TYPE } from "../../Constants/constants.js";
 
 const CompanySchema = new mongoose.Schema(
   {
