@@ -14,11 +14,10 @@ const CompanySchema = new mongoose.Schema(
     countries: [{ code: String, name: String }],
     links: [{ type: String, enum: Object.values(COMPANY_LINK_TYPE) }],
     
-    // techStack now includes optional logo for frontend
     techStack: [
       {
         name: String,
-        logo: String, // optional
+        logo: String, 
       }
     ],
 
