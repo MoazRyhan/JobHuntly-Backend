@@ -79,18 +79,19 @@ export const register= async (userData) => {
 
 
 
+export const login = async (email, password) => {
+  const user = await UserModel.findOne({email}).select("+password +refreshToken");
 
+  if (!user) {
+    throw new ApiError(401, "Invalid email or password");
+  }
 
+  const passwordMatch = bcrypt.compareSync(password, user.password);
+  if (!passwordMatch) {
+    throw new ApiError(401, "Invalid email or password");
+  }
 
-export const login =  async (email, password) => {
-  const user = await UserModel.findOne({ email }).select("+password +refreshToken");
-
-  if (!user) throw new ApiError(401, "Invalid email or password");
-
-  //check the password
-  const if_pass_right = bcrypt.compareSync( password , user.password )    
-  if ( !if_pass_right )  throw new ApiError(401, "email or password is wrong");
-
+  // const accessToken = generateAccessToken(user._id,user.role);
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);
 
@@ -100,18 +101,15 @@ export const login =  async (email, password) => {
   return {
     user: {
       id: user._id,
-      fullName: user.fullName,
+      name: user.userName,
       email: user.email,
+      role: user.role,
       avatar: user.avatar,
     },
     accessToken,
     refreshToken,
   };
-}
-
-
-
-
+};
 
 
 
