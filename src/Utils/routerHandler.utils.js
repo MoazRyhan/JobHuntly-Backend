@@ -1,9 +1,8 @@
 import errorHandlerMiddleware from "../Middlewares/ErrorHandlerMiddleware.js";
 import AuthRouter from "../Modules/auth/auth.routes.js"
 import SettingsRouter from "../Modules/settings/settings.routes.js";
-
-
-
+import JobRouter from '../Modules/job/job.routes.js'
+import JobApplicationRouter from '../Modules/jobApplications/jobApplications.routes.js'
 
 
 const routerHandler = async (app , express  ) => {
@@ -24,16 +23,5 @@ const routerHandler = async (app , express  ) => {
     
     app.use(errorHandlerMiddleware);
 }
-
-
-
-
-
-
-
-
-
-
-
 
 export default routerHandler
