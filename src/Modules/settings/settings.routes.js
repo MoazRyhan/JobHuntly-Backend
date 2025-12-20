@@ -9,7 +9,8 @@ const SettingsRouter = Router();
 // =======>  Applicant 
 SettingsRouter.use( AuthenticationMiddleware() )
 
-SettingsRouter.put("/updataProfile", SettingsController.updataProfile);
+SettingsRouter.put("/updateProfile", SettingsController.updateProfile);
+SettingsRouter.get("/getProfile", SettingsController.getProfile);
 
 
 export default SettingsRouter;
@@ -25,29 +26,23 @@ POST   http://localhost:3000/users/me/avatar
 📝 background image
 PUT    http://localhost:3000/users/me/BG-image
 
-📝 About Me
-PUT    http://localhost:3000/users/me/about
 
 💼 Experiences
 POST   http://localhost:3000/users/me/experiences
-PUT    http://localhost:3000/experiences/:id
 DELETE http://localhost:3000/experiences/:id
 
 🎓 Educations
 POST   http://localhost:3000/users/me/educations
-PUT    http://localhost:3000/educations/:id
 DELETE http://localhost:3000/educations/:id
 
 🧠 Skills
-POST   http://localhost:3000/users/me/skills
 DELETE http://localhost:3000/users/me/skills/:id
 
 🖼 Portfolios
-POST   http://localhost:3000/users/me/portfolios
 DELETE http://localhost:3000/portfolios/:id
 
 🔗 Social Links
-PUT    http://localhost:3000/users/me/social-links
+ DELETE    http://localhost:3000/users/me/social-links
 
 
 

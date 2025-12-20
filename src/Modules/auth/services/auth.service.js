@@ -56,6 +56,7 @@ export const register = async (userData) => {
 
 export const login =  async (email, password) => {
   const user = await UserModel.findOne({ email }).select("+password +refreshToken");
+  
 
   if (!user) throw new ApiError(401, "Invalid email or password");
 

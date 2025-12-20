@@ -7,6 +7,12 @@ import {
 
 const CompanySchema = new mongoose.Schema(
   {
+
+   userId: {
+     type: mongoose.Schema.Types.ObjectId,
+     ref: "User",
+     required: true,
+   },
     /* ================= BASIC INFO ================= */
     name: { type: String, required: true },
 
@@ -59,6 +65,7 @@ const CompanySchema = new mongoose.Schema(
           type: String,
           enum: Object.values(TECH_STACK)
         },
+
       },
     ],
   },

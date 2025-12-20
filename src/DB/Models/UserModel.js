@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     lastLoginAt: Date,
     refreshToken: { type: String, select: false},
+    BackGroundUrl: String,
   },
   { timestamps: true }
 );

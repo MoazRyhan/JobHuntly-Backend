@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { JOB_EMPLOYMENT_TYPES, LANGUAGE_LEVELS } from "../../Constants/constants";
+import { JOB_EMPLOYMENT_TYPES, LANGUAGE_LEVELS } from "../../Constants/constants.js";
 
 const JobSeekerSchema = new mongoose.Schema(
   {
@@ -34,7 +34,7 @@ const JobSeekerSchema = new mongoose.Schema(
     languages: [
       {
         name: { type: String, required: true },
-        level: {Type : String , enum: Object.values(LANGUAGE_LEVELS), default: LANGUAGE_LEVELS.BASIC }
+        level: {type : String , enum: Object.values(LANGUAGE_LEVELS)  , default:LANGUAGE_LEVELS.BASIC }
       },
     ],
 
