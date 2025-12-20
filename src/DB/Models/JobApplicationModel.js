@@ -1,6 +1,6 @@
 // models/JobApplication.js
 import mongoose from "mongoose";
-import { APPLICATION_STATUS, ANSWER_TYPE } from "../../Constants/constants.js";
+import { ANSWER_TYPE } from "../../Constants/constants.js";
 
 const JobApplicationSchema = new mongoose.Schema(
   {
@@ -8,11 +8,7 @@ const JobApplicationSchema = new mongoose.Schema(
     seekerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
     appliedAt: { type: Date, default: Date.now },
-    status: {
-      type: String,
-      enum: Object.values(APPLICATION_STATUS),
-      default: APPLICATION_STATUS.IN_REVIEW,
-    },
+
     score: Number,
 
     // snapshot fields

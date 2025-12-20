@@ -1,4 +1,5 @@
 import  jwt  from 'jsonwebtoken';
+import UserModel from '../DB/Models/UserModel.js';
 // import { BlacklistToken_Model } from './../DB/models/BlackList_token_model.js';
 import UserModel from '../DB/Models/UserModel.js';
 
@@ -19,6 +20,7 @@ export const AuthenticationMiddleware = () => {
         access_token,
         process.env.JWT_ACCESS_TOKEN_SECRET_KEY
       );
+
 
       // find the data
       const user = await UserModel.findById(

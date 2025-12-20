@@ -2,6 +2,7 @@ import express from "express"
 import DataBase from "./DB/connection.js"
 import routerHandler from "./Utils/routerHandler.utils.js"
 import  dotenv  from "dotenv"
+import cors from "cors";
 
 
 dotenv.config()
@@ -11,7 +12,17 @@ dotenv.config()
   
   const bootstrap = () =>{
     const app = express()
-    
+   
+// for connection with front end 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
 
     // database
     DataBase()

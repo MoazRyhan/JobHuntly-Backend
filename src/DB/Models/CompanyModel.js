@@ -18,6 +18,21 @@ const CompanySchema = new mongoose.Schema(
     about: String,
     logoUrl: String,
 
+//     countries: [{ code: String, name: String }],
+    //links: [{ type: String, enum: Object.values(COMPANY_LINK_TYPE) }],
+    
+//     techStack: [
+//       {
+//         name: String,
+//         logo: String, 
+//       }
+//     ],
+
+    images: [
+      {
+        src: String,
+      }
+
     hqCity: String,
     hqCountry: String,
 
@@ -42,7 +57,7 @@ const CompanySchema = new mongoose.Schema(
     ],
 
     /* ================= CONTACT / SOCIAL LINKS ================= */
-    contacts: [
+    links: [
       {
         type: {
           type: String,
@@ -69,3 +84,4 @@ const CompanyModel =
   mongoose.models.Company || mongoose.model("Company", CompanySchema);
 
 export default CompanyModel;
+
