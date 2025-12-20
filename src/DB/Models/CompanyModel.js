@@ -1,16 +1,16 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 import {
   COMPANY_LINK_TYPE,
   COMPANY_INDUSTRIES,
   TECH_STACK,
-} from "../../Constants/constants.js";
+} from '../../Constants/constants.js'
 
 const CompanySchema = new mongoose.Schema(
   {
     /* ================= BASIC INFO ================= */
     name: { type: String, required: true },
 
-    industry:  {Type : String , enum: Object.values(COMPANY_INDUSTRIES)},
+    industry: { type: String, enum: Object.values(COMPANY_INDUSTRIES) },
 
     website: String,
     foundedDate: Date,
@@ -18,20 +18,21 @@ const CompanySchema = new mongoose.Schema(
     about: String,
     logoUrl: String,
 
-//     countries: [{ code: String, name: String }],
+    //     countries: [{ code: String, name: String }],
     //links: [{ type: String, enum: Object.values(COMPANY_LINK_TYPE) }],
-    
-//     techStack: [
-//       {
-//         name: String,
-//         logo: String, 
-//       }
-//     ],
+
+    //     techStack: [
+    //       {
+    //         name: String,
+    //         logo: String,
+    //       }
+    //     ],
 
     images: [
       {
         src: String,
-      }
+      },
+    ],
 
     hqCity: String,
     hqCountry: String,
@@ -72,16 +73,15 @@ const CompanySchema = new mongoose.Schema(
       {
         name: {
           type: String,
-          enum: Object.values(TECH_STACK)
+          enum: Object.values(TECH_STACK),
         },
       },
     ],
   },
   { timestamps: true }
-);
+)
 
 const CompanyModel =
-  mongoose.models.Company || mongoose.model("Company", CompanySchema);
+  mongoose.models.Company || mongoose.model('Company', CompanySchema)
 
-export default CompanyModel;
-
+export default CompanyModel
