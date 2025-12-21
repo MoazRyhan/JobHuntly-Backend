@@ -3,87 +3,45 @@ import ApiError from "../../../Utils/ApiError.utils.js";
 import { generateAccessToken  ,  generateRefreshToken,  verifyRefreshToken, } from "./../../../Utils/tokens.utils.js";
 import { sendWelcomeEmail } from "./../../../Utils/email.utils.js"
 import bcrypt ,{ compareSync, hashSync } from "bcrypt";
-import { SYSTEM_ROLE } from "../../../Constants/constants.js";
-import JobSeekerModel from "../../../DB/Models/JobSeekerModel.js";
-import CompanyModel from "../../../DB/Models/CompanyModel.js";
-import AdminModel from './../../../DB/Models/AdminModel.js';
 
 
 export const register = async (userData) => {
-  const {
-    fullName, // optional (for company) this is acn be the company name or the jobSeeker name 
-    email,
-    password,
-    rePassword,
-    role, 
-  } = userData;
+  const { fullName, email, password , rePassword } = userData;
 
-  /* ================= VALIDATION ================= */
-  if (password !== rePassword) {
-    throw new ApiError(400, "Password and rePassword must match");
-  }
+  if (password !== rePassword ) throw new ApiError(401, "the password and ans the rePassword must be identical") 
 
-  const existingUser = await UserModel.findOne({ email });
+
+  const existingUser = await UserModel.findOne({ $or: [{ email }, { fullName }] });
+
   if (existingUser) {
-    throw new ApiError(400, "Email already exists");
+    if (existingUser.email === email) {
+      throw new ApiError(400, "Email already exists");
+    }
+    if (existingUser.fullName === fullName) {
+      throw new ApiError(400, "fullName already exists");
+    }
   }
 
-    /* ================= CREATE USER ================= */
-    const hashedPassword = hashSync(
-      password,
-      Number(process.env.PASSWORD_SALT)
-    );
+    // hash the password
+    const password_hashed =  hashSync(password , +process.env.PASSWORD_SALT )
 
-    const user = await UserModel.create(
-        {
-          fullName,
-          email,
-          password: hashedPassword,
-          role,
-        }
-    );
 
-    if (!user) {
-    throw new ApiError(400, "failed to create a user");
-  }
+  const user = await UserModel.create({ fullName, email, password :password_hashed  });
 
-    /* ================= CREATE ROLE-BASED PROFILE ================= */
-
-  if (role === SYSTEM_ROLE.JOB_SEEKER) {
-    await JobSeekerModel.create({
-      userId: user._id,
-    });
-  }
-
-  if (role === SYSTEM_ROLE.COMPANY) {
-    await CompanyModel.create({
-      userId: user._id,
-      name: fullName,
-    });
-  }
-
-  if (role === SYSTEM_ROLE.ADMIN) {
-    throw new ApiError(400, "access deny for creating admin");
-  }
-
-    /* ================= TOKENS ================= */
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
 
   user.refreshToken = refreshToken;
   await user.save();
 
-
-
-    /* ================= EMAIL ================= */
-     await sendWelcomeEmail(user.fullName, user.email);
+  await sendWelcomeEmail(user.fullName, user.email);
 
   return {
     user: {
       id: user._id,
       fullName: user.fullName,
       email: user.email,
-      role: user.role,
+      avatar: user.avatarUrl,
     },
     accessToken,
     refreshToken,
@@ -95,23 +53,17 @@ export const register = async (userData) => {
 
 
 
-export const login = async (email, password) => {
-  /* ================= FIND USER ================= */
-  const user = await UserModel.findOne({ email }).select(
-    "+password +refreshToken"
-  );
 
-  if (!user) {
-    throw new ApiError(401, "Invalid email or password");
-  }
+export const login =  async (email, password) => {
+  const user = await UserModel.findOne({ email }).select("+password +refreshToken");
+  
 
-  /* ================= CHECK PASSWORD ================= */
-  const isPasswordCorrect = bcrypt.compareSync(password, user.password);
-  if (!isPasswordCorrect) {
-    throw new ApiError(401, "Invalid email or password");
-  }
+  if (!user) throw new ApiError(401, "Invalid email or password");
 
-  /* ================= GENERATE TOKENS ================= */
+  //check the password
+  const if_pass_right = bcrypt.compareSync( password , user.password )    
+  if ( !if_pass_right )  throw new ApiError(401, "email or password is wrong");
+
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);
 
@@ -147,20 +99,15 @@ export const login = async (email, password) => {
   return {
     user: {
       id: user._id,
-      fullName: user.fullName,
+      name: user.userName,
       email: user.email,
-      role: user.role,
-      avatarUrl: user.avatarUrl,
+      avatar: user.avatar,
     },
     profile, // JobSeeker | Company | (Admin)
     accessToken,
     refreshToken,
   };
-}
-
-
-
-
+};
 
 
 

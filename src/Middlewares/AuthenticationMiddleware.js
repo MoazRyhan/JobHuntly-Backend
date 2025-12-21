@@ -4,10 +4,10 @@ import { verifyAccessToken } from "../Utils/tokens.utils.js";
 export const AuthenticationMiddleware = () => {
   return async (req, res, next) => {
     try {
-      const { access_token } = req.headers;
+      const { access_token } = req.headers
 
       if (!access_token) {
-        return res.status(401).json({ message: "please login first" });
+        return res.status(401).json({ message: 'please login first' })
       }
 
       // decode the data
@@ -19,7 +19,7 @@ export const AuthenticationMiddleware = () => {
         "-password -__v"
       );
       if (!user) {
-        return res.status(404).json({ message: "this user is not found" });
+        return res.status(404).json({ message: 'this user is not found' })
       }
 
       // console.log(user._doc);
@@ -30,12 +30,12 @@ export const AuthenticationMiddleware = () => {
           token_id: decoding_access_token.jti,
           expiration_data: decoding_access_token.exp,
         },
-      };
+      }
 
-      next();
+      next()
     } catch (error) {
       console.log(
-        "internal authentication middleware error  ==========>",
+        'internal authentication middleware error  ==========>',
         error
       );
       res.status(500).json({
@@ -46,7 +46,7 @@ export const AuthenticationMiddleware = () => {
   };
 };
 
-//             ===================   still under test for black list  ========================
+//             ===================   it's work now  ========================
 
 export const AuthorizationMiddleware = (allow_role = []) => {
   return async (req, res, next) => {
