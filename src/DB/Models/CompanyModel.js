@@ -1,18 +1,18 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 import {
   COMPANY_LINK_TYPE,
   COMPANY_INDUSTRIES,
   TECH_STACK,
-} from "../../Constants/constants.js";
+} from '../../Constants/constants.js'
 
 const CompanySchema = new mongoose.Schema(
   {
-
-   userId: {
-     type: mongoose.Schema.Types.ObjectId,
-     ref: "User",
-     required: true,
-   },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    
     /* ================= BASIC INFO ================= */
     name: { type: String, required: true },
 
@@ -70,9 +70,9 @@ const CompanySchema = new mongoose.Schema(
 
   },
   { timestamps: true }
-);
+)
 
 const CompanyModel =
-  mongoose.models.Company || mongoose.model("Company", CompanySchema);
+  mongoose.models.Company || mongoose.model('Company', CompanySchema)
 
-export default CompanyModel;
+export default CompanyModel
