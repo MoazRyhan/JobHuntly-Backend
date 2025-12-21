@@ -17,61 +17,45 @@ const CompanySchema = new mongoose.Schema(
     employeesRange: String,
     about: String,
     logoUrl: String,
-
-    //     countries: [{ code: String, name: String }],
-    //links: [{ type: String, enum: Object.values(COMPANY_LINK_TYPE) }],
-
-    //     techStack: [
-    //       {
-    //         name: String,
-    //         logo: String,
-    //       }
-    //     ],
-
-    images: [
-      {
-        src: String,
-      },
-    ],
-
+        
     hqCity: String,
     hqCountry: String,
-
+    
     isVerified: {
       type: Boolean,
       default: false,
     },
 
+    /* ================= IMAGES GALLERY ================= */
+    images: [
+        {
+            src: String,
+          },
+        ],
+        
     /* ================= OFFICE LOCATIONS ================= */
-    officeLocations: [
-      {
-        country: String,
-        isHeadQuarter: {
-          type: Boolean,
-          default: false,
-        },
-        isRemote: {
-          type: Boolean,
-          default: false,
-        },
-      },
-    ],
 
+    countries: [{ code: String, name: String }],
+        
     /* ================= CONTACT / SOCIAL LINKS ================= */
     links: [
-      {
-        type: {
-          type: String,
-          enum: Object.values(COMPANY_LINK_TYPE),
-        },
-        value: String,
+    {
+      type: {
+        type: String,
+        enum: Object.values(COMPANY_LINK_TYPE),
       },
+      value: String,
+    },
     ],
 
     /* ================= TECH STACK ================= */
     techStack: [
       {
         name: {
+          type: String,
+          enum: Object.values(TECH_STACK),
+        },
+        logo: {
           type: String,
           enum: Object.values(TECH_STACK),
         },
