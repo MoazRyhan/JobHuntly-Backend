@@ -25,10 +25,8 @@ const JobSeekerSchema = new mongoose.Schema(
     },
 
     /* ================= SKILLS ================= */
-    skills: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Skill"
-    },  
+    skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }] ,
+
 
     /* ================= LANGUAGES ================= */
     languages: [
@@ -52,7 +50,7 @@ const JobSeekerSchema = new mongoose.Schema(
       {
         jobTitle: String,
         companyName: String,
-        employmentType: {Type : String , enum: Object.values(JOB_EMPLOYMENT_TYPES) },
+        employmentType: {type : String , enum: Object.values(JOB_EMPLOYMENT_TYPES) },
         location: String,
         startDate: Date,
         endDate: Date,

@@ -12,7 +12,7 @@ import JobSeekerModel from "../../../DB/Models/JobSeekerModel.js";
 
 
 
-export const updateProfile = async (userId, data) => {
+export const updateProfile = async () => {
   const jobSeeker = await JobSeekerModel.findOne({ userId });
 
   if (!jobSeeker) {

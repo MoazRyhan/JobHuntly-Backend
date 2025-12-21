@@ -1,15 +1,14 @@
 import { Router } from "express";
 import * as SettingsController from "./controllers/SettingsApplicant.controller.js"
-import validate from "../../Middlewares/validate.js";
-import { registerSchema , loginSchema } from "./validators/SettingsApplicant.validator.js";
-import { AuthenticationMiddleware } from "../../Middlewares/AuthenticationMiddleware.js";
+import { AuthenticationMiddleware, AuthorizationMiddleware } from "../../Middlewares/AuthenticationMiddleware.js";
+import { SYSTEM_ROLE } from "../../Constants/constants.js";
 
 const SettingsRouter = Router();
 
 // =======>  Applicant 
 SettingsRouter.use( AuthenticationMiddleware() )
 
-SettingsRouter.put("/updateProfile", SettingsController.updateProfile);
+SettingsRouter.put("/updateProfile", AuthorizationMiddleware([ SYSTEM_ROLE.JOB_SEEKER ]) ,  SettingsController.updateProfile);
 SettingsRouter.get("/getProfile", SettingsController.getProfile);
 
 
