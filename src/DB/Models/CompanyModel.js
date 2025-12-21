@@ -67,6 +67,7 @@ const CompanySchema = new mongoose.Schema(
         },
       },
     ],
+
   },
   { timestamps: true }
 )
