@@ -1,5 +1,6 @@
 import JobModel from '../../../DB/Models/JobModel.js'
 import JobApplicationModel from '../../../DB/Models/JobApplicationModel.js'
+import mongoose from 'mongoose'
 import ApiError from '../../../Utils/ApiError.utils.js'
 
 export const getAllJobsService = async () => {
@@ -11,11 +12,14 @@ export const getAllJobsService = async () => {
 }
 
 export const getJobService = async (id) => {
-  const jobs = await JobModel.findById(id).populate('companyId')
-  if (!jobs) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, 'Invalid Job ID format')
+  }
+  const job = await JobModel.findById(id).populate('companyId')
+  if (!job) {
     throw new ApiError(404, 'job notfound')
   }
-  return jobs
+  return job
 }
 
 export const createJobApplicationService = async ({
@@ -25,14 +29,14 @@ export const createJobApplicationService = async ({
   responses,
 }) => {
   if (!mongoose.Types.ObjectId.isValid(jobId)) {
-    throw new Error('Invalid jobId or seekerId')
+    throw new ApiError(404, 'Invalid jobId or seekerId')
   }
   const seekerId = user._id
 
   // Prevent duplicate application
   const exists = await JobApplicationModel.findOne({ jobId, seekerId })
   if (exists) {
-    throw new Error('You have already applied to this job')
+    throw new ApiError(404, 'You have already applied to this job')
   }
 
   const application = await JobApplicationModel.create({
