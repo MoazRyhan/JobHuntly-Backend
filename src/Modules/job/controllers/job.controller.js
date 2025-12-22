@@ -29,7 +29,6 @@ export const applyToJob = asyncHandler(async (req, res) => {
   const application = await createJobApplicationService({
     jobId,
     user,
-    user: req.user, // takes it from the request
     resumeUrl: req.body.resumeUrl,
     responses: req.body.responses,
   })
