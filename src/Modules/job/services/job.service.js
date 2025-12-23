@@ -58,8 +58,7 @@ export const createJobApplicationService = async ({
     for (let i = 0; i < job.questions.length; i++) {
       const question = job.questions[i]
 
-      // WORKAROUND: Match by array position since IDs keep regenerating
-      // Assume responses are in the same order as questions
+      //  Match by array position since IDs keep regenerating
       const userAnswer = responses[i]
 
       if (!userAnswer || !userAnswer.answerValue) {
