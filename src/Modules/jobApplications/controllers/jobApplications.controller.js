@@ -15,8 +15,8 @@ export const getAllJobApplications = asyncHandler(async (req, res) => {
 })
 
 export const getJobApplicationById = asyncHandler(async (req, res) => {
-  const { jobId, applicationId } = req.params
-  const job = await getJobApplicationService(jobId, applicationId)
+  const { applicationId } = req.params
+  const job = await getJobApplicationService(applicationId)
 
   res.status(200).json({
     data: job,
