@@ -11,6 +11,8 @@ export const getAllJobApplicationsService = async (filter = {}) => {
 
 export const getJobApplicationService = async (applicationId) => {
   const jobApplication = await JobApplicationModel.findById(applicationId)
+    .populate('jobId')
+    .populate('seekerId')
   if (!jobApplication) {
     throw new ApiError(404, 'jobapplication notfound')
   }
