@@ -4,14 +4,8 @@ import * as SettingsApplicantService from "../services/SettingsApplicant.service
 
 
 
-export const updateProfile = asyncHandler(async (req, res) => {
-  const result = await SettingsApplicantService.updateProfile(req.body);
-  res.status(201).json({ success: true, data: result });
-});
-
-
-export const getProfile = asyncHandler(async (req, res) => {
-  const result = await SettingsApplicantService.getProfile(req.body);
+export const updataProfile = asyncHandler(async (req, res) => {
+  const result = await SettingsApplicantService.updataProfile(req.body);
   res.status(201).json({ success: true, data: result });
 });
 

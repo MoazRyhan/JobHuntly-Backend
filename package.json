@@ -1,6 +1,7 @@
 {
-  "name": "jobhuntly",
+  "name": "JobHuntly",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "me": "node .",
@@ -22,6 +23,5 @@
     "mongoose": "^9.0.0",
     "nodemailer": "^7.0.11",
     "nodemon": "^3.1.11"
-  },
-  "description": ""
+  }
 }
