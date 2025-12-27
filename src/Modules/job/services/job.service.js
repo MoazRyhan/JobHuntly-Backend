@@ -110,3 +110,35 @@ export const createJobApplicationService = async ({
 
   return application
 }
+
+export const getSimilarJobsByCategoryService = async (
+  categories,
+  excludeJobId = null,
+  limit = 6
+) => {
+  // Normalize input: convert single string to array
+  const categoryArray = Array.isArray(categories) ? categories : [categories]
+
+  // Validate that categories array is not empty
+  if (!categoryArray.length || categoryArray.some((cat) => !cat)) {
+    throw new ApiError(400, 'At least one valid category is required')
+  }
+
+  // Build query: find jobs where categories array contains any of the provided categories
+  const query = {
+    categories: { $in: categoryArray }, // $in finds documents where categories array contains any of the values
+    isLive: true, // Only get live jobs
+  }
+
+  // Exclude the current job if provided
+  if (excludeJobId && mongoose.Types.ObjectId.isValid(excludeJobId)) {
+    query._id = { $ne: new mongoose.Types.ObjectId(excludeJobId) }
+  }
+
+  const similarJobs = await JobModel.find(query)
+    .populate('companyId')
+    .limit(limit)
+    .sort({ postDate: -1 }) // Sort by newest first
+
+  return similarJobs
+}
