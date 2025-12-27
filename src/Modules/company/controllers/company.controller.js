@@ -35,7 +35,15 @@ catch(error){
 export const getMyCompanyJobs = async (req, res, next) => {
   try {
     const { companyId } = req.params;
-    const { page = 1, limit = 7 } = req.query;
+    const {
+      page = 1,
+      limit = 7,
+      status,
+      jobType,
+      fromDate,
+      toDate,
+      search,
+    } = req.query;
 
     if (!companyId) {
       return res.status(403).json({
@@ -43,10 +51,18 @@ export const getMyCompanyJobs = async (req, res, next) => {
       });
     }
 
+    const filters = {};
+    if (status) filters.status = status;
+    if (jobType) filters.jobType = jobType;
+    if (fromDate) filters.fromDate = fromDate;
+    if (toDate) filters.toDate = toDate;
+    if (search) filters.search = search;
+
     const jobs = await getJobsByCompanyIdService(
       companyId,
-      page,
-      limit
+      Number(page),
+      Number(limit),
+      filters
     );
 
     res.status(200).json({
@@ -57,4 +73,5 @@ export const getMyCompanyJobs = async (req, res, next) => {
     next(error);
   }
 };
+
 
