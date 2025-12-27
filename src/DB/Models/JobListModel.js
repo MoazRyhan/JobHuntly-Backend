@@ -3,6 +3,7 @@ import {
   jobEmploymentTypeValues,
   jobCategoryValues,
 } from "../../Constants/constants.js";
+// import { string } from "joi";
 
 
 const JobSchema = new mongoose.Schema(
@@ -13,21 +14,16 @@ const JobSchema = new mongoose.Schema(
       trim: true,
     },
 
-    jobType: {
-      type: String,
-      enum: jobEmploymentTypeValues,
-      required: true,
-    },
+    // jobType: {
+    //   type: String,
+    //   enum: jobEmploymentTypeValues,
+    //   required: true,
+    // },
+    jobType: String,
 
     category: {
       type: String,
       enum: jobCategoryValues,
-    },
-
-    status: {
-      type: String,
-      enum: ["live", "closed"],
-      default: "live",
     },
 
     dueDate: {
