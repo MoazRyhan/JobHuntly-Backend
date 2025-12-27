@@ -17,6 +17,7 @@ const routerHandler = async (app , express  ) => {
     app.use( "/auth" ,  AuthRouter )
     app.use( "/settings" ,  SettingsRouter )
     
+    app.use("/companies", companyRoutes);
     app.use("/api", MahmoudRouter);  
 
     app.use('/jobs', JobRouter)
