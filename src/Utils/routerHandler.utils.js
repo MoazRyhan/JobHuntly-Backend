@@ -12,7 +12,7 @@ import companyRouter from "../Modules/CompanyDashboard/company.route.js";
 
 
 
-const routerHandler = async (app, express) => {
+
 
 const routerHandler = async (app , express  ) => {
 
