@@ -84,9 +84,15 @@ const JobSchema = new mongoose.Schema(
     ],
 
     // benefits: {
+<<<<<<< HEAD
+    //   type: JOB_BENEFITS,
+    //   default: [],
+    // },
+=======
     //   type: [JOB_BENEFITS],
     //   default: []
     // }
+>>>>>>> feature/settingsapp
   },
   { timestamps: true }
 )
