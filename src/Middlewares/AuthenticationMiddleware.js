@@ -13,7 +13,7 @@ export const AuthenticationMiddleware = () => {
       // decode the data
       const decoding_access_token = verifyAccessToken(access_token);
 
-      console.log(decoding_access_token);
+      // console.log(decoding_access_token);
       
 
       // find the data
@@ -50,7 +50,6 @@ export const AuthenticationMiddleware = () => {
 };
 
 //     ===================   it's work now  ========================
-
 export const AuthorizationMiddleware = (allow_role = []) => {
   return async (req, res, next) => {
     try {
