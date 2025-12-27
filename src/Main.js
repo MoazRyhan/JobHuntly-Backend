@@ -22,6 +22,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use('/assets', express.static('Assets'))
 
 
 

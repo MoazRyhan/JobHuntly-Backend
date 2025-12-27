@@ -5,6 +5,7 @@ import cors from "cors";
 import SettingsRouter from "../Modules/settings/settings.routes.js";
 import JobRouter from '../Modules/job/job.routes.js'
 import JobApplicationRouter from '../Modules/jobApplications/jobApplications.routes.js'
+import UploadRouter from '../Modules/upload/upload.routes.js'
 import companyRoutes from "../Modules/company/company.routes.js"
 
 
@@ -16,6 +17,7 @@ const routerHandler = async (app , express  ) => {
     
     app.use( "/auth" ,  AuthRouter )
     app.use( "/settings" ,  SettingsRouter )
+    app.use( "/upload" ,  UploadRouter )
     
     app.use("/companies", companyRoutes);
     app.use("/api", MahmoudRouter);  

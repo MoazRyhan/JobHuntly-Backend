@@ -9,11 +9,10 @@ export const getAllJobApplicationsService = async (filter = {}) => {
   return jobApplications
 }
 
-export const getJobApplicationService = async (jobId, applicationId) => {
-  const jobApplication = await JobApplicationModel.findOne({
-    _id: applicationId,
-    jobId,
-  })
+export const getJobApplicationService = async (applicationId) => {
+  const jobApplication = await JobApplicationModel.findById(applicationId)
+    .populate('jobId')
+    .populate('seekerId')
   if (!jobApplication) {
     throw new ApiError(404, 'jobapplication notfound')
   }

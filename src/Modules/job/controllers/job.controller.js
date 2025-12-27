@@ -15,7 +15,8 @@ export const getAllJobs = asyncHandler(async (req, res) => {
 })
 
 export const getJobById = asyncHandler(async (req, res) => {
-  const job = await getJobService(req.params.id)
+  const seekerId = req.login_user?._id || null
+  const job = await getJobService(req.params.id, seekerId)
 
   res.status(200).json({
     data: job,
@@ -29,7 +30,6 @@ export const applyToJob = asyncHandler(async (req, res) => {
   const application = await createJobApplicationService({
     jobId,
     user,
-    user: req.user, // takes it from the request
     resumeUrl: req.body.resumeUrl,
     responses: req.body.responses,
   })
