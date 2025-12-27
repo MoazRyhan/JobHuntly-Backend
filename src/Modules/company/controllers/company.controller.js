@@ -34,8 +34,8 @@ catch(error){
 
 export const getMyCompanyJobs = async (req, res, next) => {
   try {
-   // const companyId = req.login_user.companyId; // will be returned after fixing the authorization
-    const { companyId } = req.params; 
+    const { companyId } = req.params;
+    const { page = 1, limit = 7 } = req.query;
 
     if (!companyId) {
       return res.status(403).json({
@@ -43,7 +43,11 @@ export const getMyCompanyJobs = async (req, res, next) => {
       });
     }
 
-    const jobs = await getJobsByCompanyIdService(companyId);
+    const jobs = await getJobsByCompanyIdService(
+      companyId,
+      page,
+      limit
+    );
 
     res.status(200).json({
       success: true,
