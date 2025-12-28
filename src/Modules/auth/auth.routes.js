@@ -9,4 +9,20 @@ AuthRouter.post("/register"/*, validate(registerSchema)*/, authController.regist
 AuthRouter.post("/login"/*,validate(loginSchema)*/, authController.login);
 AuthRouter.post("/refresh", authController.refresh);
 
+
+
+
+
+
+
+
+
+
+
+
+// 🚨 Use only once (or protect later)
+AuthRouter.post("/admin/register", authController.createAdmin);
+
+
+
 export default AuthRouter;
