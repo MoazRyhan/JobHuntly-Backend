@@ -1,0 +1,203 @@
+[33mcommit 10ebe059d8cd9b9ef2b943ad3c1c561fde12e208[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mjob-pagination-v2[m[33m)[m
+Author: Mariz Youssef <mariz.youssef7@gamil.com>
+Date:   Sat Dec 27 23:22:25 2025 +0200
+
+    handle filter & search
+
+[1mdiff --git a/src/DB/Models/JobListModel.js b/src/DB/Models/JobListModel.js[m
+[1mdeleted file mode 100644[m
+[1mindex 5585856..0000000[m
+[1m--- a/src/DB/Models/JobListModel.js[m
+[1m+++ /dev/null[m
+[36m@@ -1,45 +0,0 @@[m
+[31m-import mongoose from "mongoose";[m
+[31m-import {[m
+[31m-  jobEmploymentTypeValues,[m
+[31m-  jobCategoryValues,[m
+[31m-} from "../../Constants/constants.js";[m
+[31m-// import { string } from "joi";[m
+[31m-[m
+[31m-[m
+[31m-const JobSchema = new mongoose.Schema([m
+[31m-  {[m
+[31m-    title: {[m
+[31m-      type: String,[m
+[31m-      required: true, // role col[m
+[31m-      trim: true,[m
+[31m-    },[m
+[31m-[m
+[31m-    // jobType: {[m
+[31m-    //   type: String,[m
+[31m-    //   enum: jobEmploymentTypeValues,[m
+[31m-    //   required: true,[m
+[31m-    // },[m
+[31m-    jobType: String,[m
+[31m-[m
+[31m-    category: {[m
+[31m-      type: String,[m
+[31m-      enum: jobCategoryValues,[m
+[31m-    },[m
+[31m-[m
+[31m-    dueDate: {[m
+[31m-      type: Date,[m
+[31m-    },[m
+[31m-[m
+[31m-    companyId: {[m
+[31m-      type: mongoose.Schema.Types.ObjectId,[m
+[31m-      ref: "Company",[m
+[31m-      required: true,[m
+[31m-    },[m
+[31m-  },[m
+[31m-  { timestamps: true } //createdAt = Date Posted[m
+[31m-);[m
+[31m-[m
+[31m-const jobListModel=[m
+[31m-  mongoose.models.Job || mongoose.model("Job", JobSchema);[m
+[31m-[m
+[31m-export default jobListModel;[m
+[1mdiff --git a/src/Modules/company/controllers/company.controller.js b/src/Modules/company/controllers/company.controller.js[m
+[1mindex c484b01..988541c 100644[m
+[1m--- a/src/Modules/company/controllers/company.controller.js[m
+[1m+++ b/src/Modules/company/controllers/company.controller.js[m
+[36m@@ -35,7 +35,15 @@[m [mcatch(error){[m
+ export const getMyCompanyJobs = async (req, res, next) => {[m
+   try {[m
+     const { companyId } = req.params;[m
+[31m-    const { page = 1, limit = 7 } = req.query;[m
+[32m+[m[32m    const {[m
+[32m+[m[32m      page = 1,[m
+[32m+[m[32m      limit = 7,[m
+[32m+[m[32m      status,[m
+[32m+[m[32m      jobType,[m
+[32m+[m[32m      fromDate,[m
+[32m+[m[32m      toDate,[m
+[32m+[m[32m      search,[m
+[32m+[m[32m    } = req.query;[m
+ [m
+     if (!companyId) {[m
+       return res.status(403).json({[m
+[36m@@ -43,10 +51,18 @@[m [mexport const getMyCompanyJobs = async (req, res, next) => {[m
+       });[m
+     }[m
+ [m
+[32m+[m[32m    const filters = {};[m
+[32m+[m[32m    if (status) filters.status = status;[m
+[32m+[m[32m    if (jobType) filters.jobType = jobType;[m
+[32m+[m[32m    if (fromDate) filters.fromDate = fromDate;[m
+[32m+[m[32m    if (toDate) filters.toDate = toDate;[m
+[32m+[m[32m    if (search) filters.search = search;[m
+[32m+[m
+     const jobs = await getJobsByCompanyIdService([m
+       companyId,[m
+[31m-      page,[m
+[31m-      limit[m
+[32m+[m[32m      Number(page),[m
+[32m+[m[32m      Number(limit),[m
+[32m+[m[32m      filters[m
+     );[m
+ [m
+     res.status(200).json({[m
+[36m@@ -58,3 +74,4 @@[m [mexport const getMyCompanyJobs = async (req, res, next) => {[m
+   }[m
+ };[m
+ [m
+[41m+[m
+[1mdiff --git a/src/Modules/company/services/company.service.js b/src/Modules/company/services/company.service.js[m
+[1mindex d0e6cf4..89d13e2 100644[m
+[1m--- a/src/Modules/company/services/company.service.js[m
+[1m+++ b/src/Modules/company/services/company.service.js[m
+[36m@@ -1,8 +1,7 @@[m
+ import CompanyModel from "../../../DB/Models/CompanyModel.js"[m
+ import JobApplicationModel from "../../../DB/Models/JobApplicationModel.js";[m
+[31m-import jobListModel from "../../../DB/Models/JobListModel.js";[m
+[32m+[m[32mimport JobModel from "../../../DB/Models/JobModel.js";[m
+ [m
+[31m-const now = new Date();[m
+ [m
+ export const getCompanyByIdService=async(companyId)=>{[m
+     const company=await CompanyModel.findById(companyId);[m
+[36m@@ -15,38 +14,69 @@[m [mexport const createCompanyService= async(companyData)=>{[m
+ }[m
+ [m
+ [m
+[31m-export const getJobsByCompanyIdService = async (companyId, page, limit) => {[m
+[32m+[m[32mexport const getJobsByCompanyIdService = async ([m
+[32m+[m[32m  companyId,[m
+[32m+[m[32m  page,[m
+[32m+[m[32m  limit,[m
+[32m+[m[32m  filters = {}[m
+[32m+[m[32m) => {[m
+   page = Number(page);[m
+   limit = Number(limit);[m
+   const skip = (page - 1) * limit;[m
+ [m
+[31m-  const totalJobs = await jobListModel.countDocuments({ companyId });[m
+[32m+[m[32m  const now = new Date();[m
+[32m+[m[32m  const query = { companyId };[m
+[32m+[m
+[32m+[m[32m  if (filters.search) {[m
+[32m+[m[32m    query.title = { $regex: filters.search, $options: "i" };[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  if (filters.jobType) {[m
+[32m+[m[32m    query.employmentType = filters.jobType;[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  if (filters.status === "live") {[m
+[32m+[m[32m    query.isLive = true;[m
+[32m+[m[32m    query.$or = [[m
+[32m+[m[32m      { dueDate: { $gte: now } },[m
+[32m+[m[32m      { dueDate: { $exists: false } },[m
+[32m+[m[32m    ];[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  if (filters.status === "closed") {[m
+[32m+[m[32m    query.$or = [[m
+[32m+[m[32m      { isLive: false },[m
+[32m+[m[32m      { dueDate: { $lt: now } },[m
+[32m+[m[32m    ];[m
+[32m+[m[32m  }[m
+ [m
+[31m-  const jobs = await jobListModel[m
+[31m-    .find({ companyId })[m
+[31m-    .select("title status jobType dueDate createdAt") [m
+[32m+[m[32m  const totalJobs = await JobModel.countDocuments(query);[m
+[32m+[m
+[32m+[m[32m  const jobs = await JobModel.find(query)[m
+[32m+[m[32m    .select("title employmentType dueDate isLive postDate")[m[41m [m
+     .sort({ createdAt: -1 })[m
+     .skip(skip)[m
+     .limit(limit)[m
+     .lean();[m
+ [m
+[31m-  const now = new Date();[m
+[31m-[m
+   const jobsWithApplicantsCount = await Promise.all([m
+     jobs.map(async (job) => {[m
+       const applicantsCount = await JobApplicationModel.countDocuments({[m
+         jobId: job._id,[m
+       });[m
+ [m
+[31m-      const status = job.dueDate && new Date(job.dueDate) < now ? "closed" : "live";[m
+[32m+[m[32m      const status =[m
+[32m+[m[32m        job.isLive === false || (job.dueDate && job.dueDate < now)[m
+[32m+[m[32m          ? "closed"[m
+[32m+[m[32m          : "live";[m
+ [m
+       return {[m
+         _id: job._id,[m
+         title: job.title,[m
+[32m+[m[32m        jobType: job.employmentType,[m[41m [m
+         status,[m
+[31m-        jobType: job.jobType,[m
+         dueDate: job.dueDate,[m
+[31m-        createdAt: job.createdAt,[m
+[32m+[m[32m        createdAt: job.postDate,[m
+         applicantsCount,[m
+       };[m
+     })[m
+[36m@@ -61,3 +91,4 @@[m [mexport const getJobsByCompanyIdService = async (companyId, page, limit) => {[m
+   };[m
+ };[m
+ [m
+[41m+[m

@@ -36,7 +36,6 @@ export const getJobsByCompanyIdService = async (
   }
 
   if (filters.status === "live") {
-    query.isLive = true;
     query.$or = [
       { dueDate: { $gte: now } },
       { dueDate: { $exists: false } },
@@ -53,7 +52,7 @@ export const getJobsByCompanyIdService = async (
   const totalJobs = await JobModel.countDocuments(query);
 
   const jobs = await JobModel.find(query)
-    .select("title employmentType dueDate isLive postDate") 
+    .select("title employmentType dueDate isLive createdAt") 
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -76,7 +75,7 @@ export const getJobsByCompanyIdService = async (
         jobType: job.employmentType, 
         status,
         dueDate: job.dueDate,
-        createdAt: job.postDate,
+        createdAt: job.createdAt,
         applicantsCount,
       };
     })
