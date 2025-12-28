@@ -1,5 +1,13 @@
-import mongoose from "mongoose";
-import { QUESTION_TYPE, jobCategoryValues, jobEmploymentTypeValues, JOB_BENEFITS, jobWorkplaceModelValues  } from "../../Constants/constants.js";
+// models/Job.js
+import mongoose from 'mongoose'
+import CompanyModel from './CompanyModel.js'
+import {
+  QUESTION_TYPE,
+  jobCategoryValues,
+  jobEmploymentTypeValues,
+  JOB_BENEFITS,
+  jobWorkplaceModelValues 
+} from '../../Constants/constants.js'
 
 const JobSchema = new mongoose.Schema(
   {

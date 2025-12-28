@@ -3,12 +3,6 @@ import { COMPANY_INDUSTRIES, COMPANY_LINK_TYPE, TECH_STACK } from "../../Constan
 
 const CompanySchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    
     /* ================= BASIC INFO ================= */
     name: { type: String, required: true },
 
@@ -19,45 +13,56 @@ const CompanySchema = new mongoose.Schema(
     employeesRange: String,
     about: String,
     logoUrl: String,
-        
+
+    images: [
+      {
+        src: String,
+      },
+    ],
+
     hqCity: String,
     hqCountry: String,
-    
+
     isVerified: {
       type: Boolean,
       default: false,
     },
 
-    /* ================= IMAGES GALLERY ================= */
-    images: [
-        {
-            src: String,
-          },
-        ],
-        
     /* ================= OFFICE LOCATIONS ================= */
+    officeLocations: [
+      {
+        country: String,
+        isHeadQuarter: {
+          type: Boolean,
+          default: false,
+        },
+        isRemote: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
 
-    countries: [{ code: String, name: String }],
-        
     /* ================= CONTACT / SOCIAL LINKS ================= */
     links: [
-    {
-      type: {
-        type: String,
-        enum: Object.values(COMPANY_LINK_TYPE),
+      {
+        type: {
+          type: String,
+          enum: Object.values(COMPANY_LINK_TYPE),
+        },
+        value: String,
       },
-      value: String,
-    },
     ],
 
     /* ================= TECH STACK ================= */
     techStack: [
       {
-        name: { type: String, required: true },
-        logo:  { type: String , enum: Object.values(TECH_STACK),},
-    }
+        name: {
+          type: String,
+          enum: Object.values(TECH_STACK),
+        },
+      },
     ],
-
   },
   { timestamps: true }
 )

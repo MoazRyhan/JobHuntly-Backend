@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { JOB_EMPLOYMENT_TYPES, LANGUAGE_LEVELS } from "../../Constants/constants.js";
+import { JOB_EMPLOYMENT_TYPES, LANGUAGE_LEVELS } from "../../Constants/constants";
 
 const JobSeekerSchema = new mongoose.Schema(
   {
@@ -25,14 +25,16 @@ const JobSeekerSchema = new mongoose.Schema(
     },
 
     /* ================= SKILLS ================= */
-    skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }] ,
-
+    skills: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Skill"
+    },  
 
     /* ================= LANGUAGES ================= */
     languages: [
       {
         name: { type: String, required: true },
-        level: {type : String , enum: Object.values(LANGUAGE_LEVELS)  , default:LANGUAGE_LEVELS.BASIC }
+        level: {Type : String , enum: Object.values(LANGUAGE_LEVELS), default: LANGUAGE_LEVELS.BASIC }
       },
     ],
 
@@ -50,7 +52,7 @@ const JobSeekerSchema = new mongoose.Schema(
       {
         jobTitle: String,
         companyName: String,
-        employmentType: {type : String , enum: Object.values(JOB_EMPLOYMENT_TYPES) },
+        employmentType: {Type : String , enum: Object.values(JOB_EMPLOYMENT_TYPES) },
         location: String,
         startDate: Date,
         endDate: Date,
