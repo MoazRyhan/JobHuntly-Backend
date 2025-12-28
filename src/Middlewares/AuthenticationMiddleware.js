@@ -1,27 +1,25 @@
-import UserModel from '../DB/Models/UserModel.js'
-import { verifyAccessToken } from '../Utils/tokens.utils.js'
+import UserModel from "../DB/Models/UserModel.js";
+import { verifyAccessToken } from "../Utils/tokens.utils.js";
 
 export const AuthenticationMiddleware = () => {
   return async (req, res, next) => {
     try {
-      const { access_token } = req.headers
+      const { access_token } = req.headers;
 
       if (!access_token) {
-        return res.status(401).json({ message: 'please login first' })
+        return res.status(401).json({ message: "please login first" });
       }
 
       // decode the data
-      const decoding_access_token = verifyAccessToken(access_token)
-
-      console.log(decoding_access_token)
+      const decoding_access_token = verifyAccessToken(access_token);
 
       // find the data
       const user = await UserModel.findById(
         decoding_access_token.userId,
-        '-password -__v'
-      )
+        "-password -__v"
+      );
       if (!user) {
-        return res.status(404).json({ message: 'this user is not found' })
+        return res.status(404).json({ message: "this user is not found" });
       }
 
       // console.log(user._doc);
@@ -32,52 +30,51 @@ export const AuthenticationMiddleware = () => {
           token_id: decoding_access_token.jti,
           expiration_data: decoding_access_token.exp,
         },
-      }
+      };
 
-      next()
+      next();
     } catch (error) {
       console.log(
-        'internal authentication middleware error  ==========>',
+        "internal authentication middleware error  ==========>",
         error
-      )
+      );
       res.status(500).json({
-        message: 'internal authentication middleware error====>',
+        message: "internal authentication middleware error====>",
         error,
-      })
+      });
     }
-  }
-}
+  };
+};
 
-//     ===================   it's work now  ========================
+//             ===================   it's work now  ========================
 
 export const AuthorizationMiddleware = (allow_role = []) => {
   return async (req, res, next) => {
     try {
-      const { access_token } = req.headers
+      const { access_token } = req.headers;
 
       if (!access_token) {
-        return res.status(401).json({ message: 'access token is required' })
+        return res.status(401).json({ message: "access token is required" });
       }
 
       // decode token
-      const decoding_access_token = verifyAccessToken(access_token)
+      const decoding_access_token = verifyAccessToken(access_token);
 
-      console.log(decoding_access_token)
       // find user
       const User = await UserModel.findById(
         decoding_access_token.userId,
-        '-password -__v'
-      )
+        "-password -__v"
+      );
 
       if (!User) {
-        return res.status(404).json({ message: 'this user is not found' })
+        return res.status(404).json({ message: "this user is not found" });
       }
 
-      // 🔥 ROLE CHECK
+      // 🔥 ROLE CHECK 
       if (allow_role.length > 0 && !allow_role.includes(User.role)) {
         return res.status(403).json({
-          message: 'you are not allowed to access this api',
-        })
+          message: "you are not allowed to access this api",
+        });
       }
 
       // attach user to request
@@ -87,17 +84,17 @@ export const AuthorizationMiddleware = (allow_role = []) => {
           token_id: decoding_access_token.jti,
           expiration_data: decoding_access_token.exp,
         },
-      }
+      };
 
-      next()
+      next();
     } catch (error) {
-      console.log('internal authorization middleware error ====>', error)
+      console.log("internal authorization middleware error ====>", error);
       return res.status(401).json({
-        message: 'invalid or expired token',
-      })
+        message: "invalid or expired token",
+      });
     }
-  }
-}
+  };
+};
 
 export const OptionalAuthenticationMiddleware = () => {
   return async (req, res, next) => {
