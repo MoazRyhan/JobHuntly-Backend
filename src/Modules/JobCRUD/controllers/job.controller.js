@@ -31,6 +31,5 @@ const deleteJob = asyncHandler(async (req, res) => {
 export default {
     createJob,
     updateJob,
-    deleteJob,
-
+    deleteJob
 }

@@ -64,35 +64,36 @@ const deleteJob = async (id) => {
     return jobDeleted;
 };
 
-// Deleting both Job & its Applications in a transaction session
-// Can't be done on Local Mongo Db, must be on Atlas.
-// So, This will be used when the backend project uses MongoDb Atlas
-// const deleteJob = async (id) => {
-//     const session = await mongoose.startSession();
-//     session.startTransaction();
+/* Deleting both Job & its Applications in a transaction session
+Can't be done on Local Mongo Db, must be on Atlas.
+So, This will be used when the backend project uses MongoDb Atlas
+const deleteJob = async (id) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-//     try {
-//         const jobDeleted = await JobModel.findByIdAndDelete(id).session(session);
+    try {
+        const jobDeleted = await JobModel.findByIdAndDelete(id).session(session);
 
-//         if (!jobDeleted) {
-//             throw new ApiError(404, 'Job not found');
-//         }
+        if (!jobDeleted) {
+            throw new ApiError(404, 'Job not found');
+        }
 
-//         // Delete all related applications
-//         await JobApplicationModel.deleteMany({ jobId: id }).session(session);
+        // Delete all related applications
+        await JobApplicationModel.deleteMany({ jobId: id }).session(session);
 
-//         // Commit the changes to the database
-//         await session.commitTransaction();
-//         return jobDeleted;
+        // Commit the changes to the database
+        await session.commitTransaction();
+        return jobDeleted;
 
-//     } catch (error) {
-//         // If anything goes wrong, undo the Job deletion
-//         await session.abortTransaction();
-//         throw error;
-//     } finally {
-//         session.endSession();
-//     }
-// }
+    } catch (error) {
+        // If anything goes wrong, undo the Job deletion
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
+    }
+}*/
+
 
 export default {
     createJob,

@@ -11,7 +11,7 @@ jobRouter.post("", validate(jobValidator.createJobSchema), jobController.createJ
 jobRouter.patch(
     "/:id",
     // validate(jobValidator.getByIdSchema, "params"), // Look in req.params
-    validate(jobValidator.updateJobSchema),  // Look in req.body
+    // validate(jobValidator.updateJobSchema),  // Look in req.body
     jobController.updateJob
 );
 
