@@ -1,7 +1,6 @@
 import errorHandlerMiddleware from "../Middlewares/ErrorHandlerMiddleware.js";
 import AuthRouter from "../Modules/auth/auth.routes.js"
 import MahmoudRouter from "../Modules/mahmoud/mahmoud.routes.js"; 
-import cors from "cors";
 import SettingsRouter from "../Modules/settings/settings.routes.js";
 import JobRouter from '../Modules/job/job.routes.js'
 import JobApplicationRouter from '../Modules/jobApplications/jobApplications.routes.js'
@@ -16,7 +15,6 @@ import companyRouter from "../Modules/CompanyDashboard/company.route.js";
 
 const routerHandler = async (app , express  ) => {
 
-    app.use(cors());
     app.use( express.json() )
     
     app.use( "/auth" ,  AuthRouter )
