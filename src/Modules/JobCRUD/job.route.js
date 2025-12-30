@@ -2,22 +2,34 @@ import { Router } from "express";
 import jobController from "./controllers/job.controller.js";
 import validate from "../../Middlewares/validate.js";
 import jobValidator from "./validators/job.validator.js";
+import { AuthenticationMiddleware, AuthorizationMiddleware } from "../../Middlewares/AuthenticationMiddleware.js";
+import { SYSTEM_ROLE } from "../../Constants/constants.js";
 
 const jobRouter = Router()
 
-jobRouter.post("", validate(jobValidator.createJobSchema), jobController.createJob)
+// jobRouter.use(AuthenticationMiddleware());
+// jobRouter.use(AuthorizationMiddleware(SYSTEM_ROLE.COMPANY))
 
-// Validate 'id' (authenticated) from params, then validate 'updateData' from body
+jobRouter.post(
+    "",
+    validate(jobValidator.createJobSchema),
+    jobController.createJob)
+
 jobRouter.patch(
     "/:id",
-    // validate(jobValidator.getByIdSchema, "params"), // Look in req.params
-    validate(jobValidator.updateJobSchema),  // Look in req.body
+    validate(jobValidator.updateJobSchema),
     jobController.updateJob
+);
+
+jobRouter.patch(
+    "/:id/live",
+    jobController.openCloseJob
 );
 
 jobRouter.delete(
     "/:id",
-    // validate(jobValidator.getByIdSchema, "params"),
     jobController.deleteJob
 );
+
+
 export default jobRouter
