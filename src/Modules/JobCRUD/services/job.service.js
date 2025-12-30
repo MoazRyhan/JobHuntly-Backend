@@ -23,17 +23,18 @@ export const updateJob = async (id, jobData, req) => {
             throw new ApiError(404, 'Job not found');
         }
 
-        // Check Ownership to the Updated Job from the Company requesting
-        const loggedInUser = req.login_user;
-        const company = await CompanyModel.findOne({ userId: loggedInUser._id });
+        // Commented until Auth middlewares are functional
+        // // Check Ownership to the Updated Job from the Company requesting
+        // const loggedInUser = req.login_user;
+        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
 
-        if (!company) {
-            throw new ApiError(403, "Only company accounts can update jobs");
-        }
+        // if (!company) {
+        //     throw new ApiError(403, "Only company accounts can update jobs");
+        // }
 
-        if (!company._id.equals(job.companyId)) {
-            throw new ApiError(403, "You do not own this job");
-        }
+        // if (!company._id.equals(job.companyId)) {
+        //     throw new ApiError(403, "You do not own this job");
+        // }
 
         Object.assign(job, jobData);
         await job.save();
@@ -57,18 +58,19 @@ const deleteJob = async (id) => {
             throw new ApiError(404, 'Job not found');
         }
 
-        // Check Ownership
-        const loggedInUser = req.login_user;
+        // Commented until Auth middlewares are functional
+        // // Check Ownership
+        // const loggedInUser = req.login_user;
 
-        const company = await CompanyModel.findOne({ userId: loggedInUser._id });
+        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
 
-        if (!company) {
-            throw new ApiError(403, "Only company accounts can delete jobs");
-        }
+        // if (!company) {
+        //     throw new ApiError(403, "Only company accounts can delete jobs");
+        // }
 
-        if (!company._id.equals(job.companyId)) {
-            throw new ApiError(403, "You do not own this job");
-        }
+        // if (!company._id.equals(job.companyId)) {
+        //     throw new ApiError(403, "You do not own this job");
+        // }
 
         await job.deleteOne();
 
@@ -94,17 +96,18 @@ const openCloseJob = async (id, req) => {
             throw new ApiError(404, 'Job not found');
         }
 
-        // Check Ownership
-        const loggedInUser = req.login_user;
-        const company = await CompanyModel.findOne({ userId: loggedInUser._id });
+        // Commented until Auth middlewares are functional
+        // // Check Ownership
+        // const loggedInUser = req.login_user;
+        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
 
-        if (!company) {
-            throw new ApiError(403, "Only company accounts can close or open jobs");
-        }
+        // if (!company) {
+        //     throw new ApiError(403, "Only company accounts can close or open jobs");
+        // }
 
-        if (!company._id.equals(job.companyId)) {
-            throw new ApiError(403, "You do not own this job");
-        }
+        // if (!company._id.equals(job.companyId)) {
+        //     throw new ApiError(403, "You do not own this job");
+        // }
 
         if (!job.isLive) {
             if (job.dueDate && job.dueDate < new Date()) {

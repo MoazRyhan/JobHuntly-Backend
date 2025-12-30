@@ -15,8 +15,6 @@ import generalRouter from "../Modules/general/general.route.js";
 
 
 const routerHandler = async (app, express) => {
-
-    app.use(cors());
     app.use(express.json())
 
     app.use("/auth", AuthRouter)
