@@ -11,7 +11,7 @@ import AdminModel from './../../../DB/Models/AdminModel.js';
 
 export const register = async (userData) => {
   const {
-    fullName, // optional (for company) this is acn be the company name or the jobSeeker name 
+    fullName, 
     email,
     password,
     rePassword,
@@ -77,6 +77,7 @@ export const register = async (userData) => {
 
     /* ================= EMAIL ================= */
      await sendWelcomeEmail(user.fullName, user.email);
+
 
   return {
     user: {
