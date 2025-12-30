@@ -9,7 +9,7 @@ const objectIdMessages = {
 };
 
 const createJobSchema = Joi.object({
-    // --- BASIC INFO ---
+    // --- ID Validations ---
     _id: Joi.string().hex().length(24).messages(objectIdMessages),
     companyId: Joi.string().hex().length(24).required().messages(objectIdMessages),
 
