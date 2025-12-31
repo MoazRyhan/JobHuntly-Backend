@@ -4,8 +4,11 @@ import { AuthorizationMiddleware } from '../../Middlewares/AuthenticationMiddlew
 
 const router = express.Router();
 
-// router.get('/me', AuthorizationMiddleware(),getMyJobApplications);
-router.get('/me', getMyJobApplications);
+router.get(
+  '/me',
+  AuthorizationMiddleware(['JOB_SEEKER']),
+  getMyJobApplications
+);
 
 
 export default router;
