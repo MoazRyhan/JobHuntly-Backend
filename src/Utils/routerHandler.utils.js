@@ -1,7 +1,6 @@
 import errorHandlerMiddleware from "../Middlewares/ErrorHandlerMiddleware.js";
 import AuthRouter from "../Modules/auth/auth.routes.js"
 import MahmoudRouter from "../Modules/mahmoud/mahmoud.routes.js"; 
-import cors from "cors";
 import SettingsRouter from "../Modules/settings/settings.routes.js";
 import JobRouter from '../Modules/job/job.routes.js'
 import JobApplicationRouter from '../Modules/jobApplications/jobApplications.routes.js'
@@ -10,6 +9,7 @@ import companyRoutes from "../Modules/company/company.routes.js"
 import jobRouter from "../Modules/JobCRUD/job.route.js";
 import companyRouter from "../Modules/CompanyDashboard/company.route.js";
 // import getMyJobApplicationsRouter  from "../Modules/applicant/controllers/applicant.controller.js";
+import generalRouter from "../Modules/general/general.route.js";
 
 import applicantRouter from "../Modules/applicant/applicant.route.js";
 
@@ -18,7 +18,6 @@ import applicantRouter from "../Modules/applicant/applicant.route.js";
 
 const routerHandler = async (app , express  ) => {
 
-    app.use(cors());
     app.use( express.json() )
     
     app.use( "/auth" ,  AuthRouter )
@@ -26,7 +25,7 @@ const routerHandler = async (app , express  ) => {
     app.use( "/upload" ,  UploadRouter )
     
     app.use("/companies", companyRoutes);
-    app.use("/api", MahmoudRouter);  
+    app.use("/api", MahmoudRouter);
 
     app.use('/jobs', JobRouter)
     app.use('/company/jobs/:jobId', JobApplicationRouter)
@@ -34,17 +33,19 @@ const routerHandler = async (app , express  ) => {
 
   
     app.use("/company", companyRouter)
+
+    app.use("", generalRouter)
     app.use("/jobs", jobRouter)
-    
+    //app.use("/company", companyRouter)
 
 
-    
-    
-    
-    app.use(  '/{*any}', (req , res ) => {  
-        res.status(404).json( { message : "this Router is not found" } )
-    }  )
-    
+
+
+
+    app.use('/{*any}', (req, res) => {
+        res.status(404).json({ message: "this Router is not found" })
+    })
+
     app.use(errorHandlerMiddleware);
 }
 

@@ -1,4 +1,5 @@
 import JobModel from '../../../DB/Models/JobModel.js';
+import CompanyModel from '../../../DB/Models/CompanyModel.js'
 import JobApplicationModel from '../../../DB/Models/JobApplicationModel.js';
 import ApiError from '../../../Utils/ApiError.utils.js';
 
@@ -8,94 +9,165 @@ const createJob = async (jobData) => {
 
         return job;
     } catch (error) {
-        // Handle MongoDB Duplicate Key Error (Title uniqueness)
-        if (error.code === 11000) {
-            throw new ApiError(400, 'Creation failed: Job Title already exists');
-        }
-        throw error;
+        console.error("Job Creation Error:", error);
+
+        throw new ApiError(500, 'Create Job Error');
     }
 }
 
-const updateJob = async (id, jobData) => {
+export const updateJob = async (id, jobData, req) => {
     try {
-        // { new: true } returns the document AFTER the update
-        // { runValidators: true } ensures the Mongoose schema enums/requirements are checked
-
-        // Authorization: Validate Company: Is this your job?
-
-        const job = await JobModel.findByIdAndUpdate(
-            id,
-            jobData, // $set is implicit here in Mongoose
-            {
-                new: true,
-                runValidators: true,
-            }
-        );
+        const job = await JobModel.findById(id);
 
         if (!job) {
             throw new ApiError(404, 'Job not found');
         }
 
+        // Commented until Auth middlewares are functional
+        // // Check Ownership to the Updated Job from the Company requesting
+        // const loggedInUser = req.login_user;
+        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
+
+        // if (!company) {
+        //     throw new ApiError(403, "Only company accounts can update jobs");
+        // }
+
+        // if (!company._id.equals(job.companyId)) {
+        //     throw new ApiError(403, "You do not own this job");
+        // }
+
+        Object.assign(job, jobData);
+        await job.save();
+
         return job;
     } catch (error) {
-        // Handle MongoDB Duplicate Key Error (Title uniqueness)
-        if (error.code === 11000) {
-            throw new ApiError(400, 'Update failed: Job Title is already taken');
+        if (error.statusCode) {
+            throw error;
         }
-        throw error;
+
+        console.error("Job Updating Internal System Error:", error);
+        throw new ApiError(500, 'Job Updating Internal Server Error');
     }
 }
 
 const deleteJob = async (id) => {
-    // Authorization: Validate Company: Is this your job?
+    try {
+        const job = await JobModel.findById(id);
 
-    // 1. Try to delete the job first
-    const jobDeleted = await JobModel.findByIdAndDelete(id);
+        if (!job) {
+            throw new ApiError(404, 'Job not found');
+        }
 
-    // 2. If no job was found, stop immediately
-    if (!jobDeleted) {
-        throw new ApiError(404, 'Job not found');
+        // Commented until Auth middlewares are functional
+        // // Check Ownership
+        // const loggedInUser = req.login_user;
+
+        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
+
+        // if (!company) {
+        //     throw new ApiError(403, "Only company accounts can delete jobs");
+        // }
+
+        // if (!company._id.equals(job.companyId)) {
+        //     throw new ApiError(403, "You do not own this job");
+        // }
+
+        await job.deleteOne();
+
+        await JobApplicationModel.deleteMany({ jobId: id });
+
+        return { message: "Job deleted successfully" };
+
+    } catch (error) {
+        if (error.statusCode) {
+            throw error;
+        }
+
+        console.error("Job Deletion Internal System Error:", error);
+        throw new ApiError(500, 'Job Deletion Internal Server Error');
     }
+}
 
-    // 3. Cascade delete applications
-    // This works perfectly whether there are 0 or 100 applications.
-    await JobApplicationModel.deleteMany({ jobId: id });
+const openCloseJob = async (id, req) => {
+    try {
+        const job = await JobModel.findById(id);
 
-    return jobDeleted;
-};
+        if (!job) {
+            throw new ApiError(404, 'Job not found');
+        }
 
-// Deleting both Job & its Applications in a transaction session
-// Can't be done on Local Mongo Db, must be on Atlas.
-// So, This will be used when the backend project uses MongoDb Atlas
-// const deleteJob = async (id) => {
-//     const session = await mongoose.startSession();
-//     session.startTransaction();
+        // Commented until Auth middlewares are functional
+        // // Check Ownership
+        // const loggedInUser = req.login_user;
+        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
 
-//     try {
-//         const jobDeleted = await JobModel.findByIdAndDelete(id).session(session);
+        // if (!company) {
+        //     throw new ApiError(403, "Only company accounts can close or open jobs");
+        // }
 
-//         if (!jobDeleted) {
-//             throw new ApiError(404, 'Job not found');
-//         }
+        // if (!company._id.equals(job.companyId)) {
+        //     throw new ApiError(403, "You do not own this job");
+        // }
 
-//         // Delete all related applications
-//         await JobApplicationModel.deleteMany({ jobId: id }).session(session);
+        if (!job.isLive) {
+            if (job.dueDate && job.dueDate < new Date()) {
+                throw new ApiError(400, "Job can't be set to Live. It has reached its Due Date.");
+            }
+        }
 
-//         // Commit the changes to the database
-//         await session.commitTransaction();
-//         return jobDeleted;
+        job.isLive = !job.isLive;
 
-//     } catch (error) {
-//         // If anything goes wrong, undo the Job deletion
-//         await session.abortTransaction();
-//         throw error;
-//     } finally {
-//         session.endSession();
-//     }
-// }
+        await job.save();
+
+        return {
+            message: `Job is now ${job.isLive ? 'Live' : 'Closed'}`,
+            isLive: job.isLive
+        };
+
+    } catch (error) {
+        if (error.statusCode) {
+            throw error;
+        }
+
+        console.error("Changing Job Liveness Internal System Error:", error);
+        throw new ApiError(500, 'Changing Job Liveness Internal Server Error');
+    }
+}
 
 export default {
     createJob,
     updateJob,
-    deleteJob
+    deleteJob,
+    openCloseJob
 };
+
+
+/* Deleting both Job & its Applications in a transaction session
+Can't be done on Local Mongo Db, must be on Atlas.
+So, This will be used when the backend project uses MongoDb Atlas
+const deleteJob = async (id) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const jobDeleted = await JobModel.findByIdAndDelete(id).session(session);
+
+        if (!jobDeleted) {
+            throw new ApiError(404, 'Job not found');
+        }
+
+        // Delete all related applications
+        await JobApplicationModel.deleteMany({ jobId: id }).session(session);
+
+        // Commit the changes to the database
+        await session.commitTransaction();
+        return jobDeleted;
+
+    } catch (error) {
+        // If anything goes wrong, undo the Job deletion
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
+    }
+}*/
