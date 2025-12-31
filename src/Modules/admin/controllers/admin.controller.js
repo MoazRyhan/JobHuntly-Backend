@@ -56,3 +56,29 @@ export const getCompanies = asyncHandler(async (req, res) => {
     },
   });
 });
+
+export const patchUserStatus = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { isActive } = req.body;
+
+  // Safety check: Prevent blocking an admin
+  const userToUpdate = await UserModel.findById(userId);
+  if (!userToUpdate) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (userToUpdate.role === SYSTEM_ROLE.ADMIN) {
+    throw new ApiError(403, "Admins cannot be blocked");
+  }
+
+  const user = await UserModel.findByIdAndUpdate(
+    userId,
+    { isActive },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
