@@ -1,9 +1,19 @@
-
+import JobSeekerModel from "../../../DB/Models/JobSeekerModel.js";
 import JobApplicationModel from "../../../DB/Models/JobApplicationModel.js";
 
-export const getMyJobApplicationsService = async (seekerId) => {
+export const getMyJobApplicationsService = async (userId) => {
+
+  const seeker = await JobSeekerModel.findOne({ userId });
+
+
+  if (!seeker) {
+    const error = new Error("Job seeker not found for this user");
+    error.statusCode = 404;
+    throw error;
+  }
+
   const applications = await JobApplicationModel
-    .find({ seekerId })
+    .find({ seekerId: seeker._id })
     .populate({
       path: 'jobId',
       select: 'title companyId',
@@ -14,6 +24,8 @@ export const getMyJobApplicationsService = async (seekerId) => {
     })
     .sort({ appliedAt: -1 });
 
+      console.log("APPLICATIONS:", applications);
+
   return applications.map(app => ({
     id: app._id,
     role: app.jobId?.title,
@@ -21,3 +33,4 @@ export const getMyJobApplicationsService = async (seekerId) => {
     dateApplied: app.appliedAt
   }));
 };
+
