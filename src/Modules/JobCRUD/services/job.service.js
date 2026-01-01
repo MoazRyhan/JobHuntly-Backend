@@ -3,40 +3,35 @@ import CompanyModel from '../../../DB/Models/CompanyModel.js'
 import JobApplicationModel from '../../../DB/Models/JobApplicationModel.js';
 import ApiError from '../../../Utils/ApiError.utils.js';
 
-const createJob = async (jobData) => {
+const createJob = async (jobData, req) => {
     try {
+        // To be Commented until Auth middlewares are functional
+        // Get CompanyId from access token
+        const loggedInUser = req.login_user;
+
+        const company = await CompanyModel.findOne({ userId: loggedInUser._id });
+
+        jobData.companyId = company._id
+
         const job = await JobModel.create(jobData);
 
         return job;
     } catch (error) {
-        console.error("Job Creation Error:", error);
+        if (error.statusCode) {
+            throw error;
+        }
 
-        throw new ApiError(500, 'Create Job Error');
+        // Catch Mongoose validation errors (e.g., missing required fields)
+        if (error.name === 'ValidationError') throw new ApiError(400, error.message);
+
+        console.error("Job Creation Internal System Error:", error);
+        throw new ApiError(500, 'Job Creation Internal Server Error');
     }
 }
 
-export const updateJob = async (id, jobData, req) => {
+const updateJob = async (job, updatedJob) => {
     try {
-        const job = await JobModel.findById(id);
-
-        if (!job) {
-            throw new ApiError(404, 'Job not found');
-        }
-
-        // Commented until Auth middlewares are functional
-        // // Check Ownership to the Updated Job from the Company requesting
-        // const loggedInUser = req.login_user;
-        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
-
-        // if (!company) {
-        //     throw new ApiError(403, "Only company accounts can update jobs");
-        // }
-
-        // if (!company._id.equals(job.companyId)) {
-        //     throw new ApiError(403, "You do not own this job");
-        // }
-
-        Object.assign(job, jobData);
+        Object.assign(job, updatedJob);
         await job.save();
 
         return job;
@@ -45,36 +40,45 @@ export const updateJob = async (id, jobData, req) => {
             throw error;
         }
 
+        // Catch Mongoose validation errors (e.g., missing required fields)
+        if (error.name === 'ValidationError') throw new ApiError(400, error.message);
+
         console.error("Job Updating Internal System Error:", error);
         throw new ApiError(500, 'Job Updating Internal Server Error');
     }
 }
 
-const deleteJob = async (id) => {
+const openCloseJob = async (job) => {
     try {
-        const job = await JobModel.findById(id);
-
-        if (!job) {
-            throw new ApiError(404, 'Job not found');
+        if (!job.isLive) {
+            if (job.dueDate && job.dueDate < new Date()) {
+                throw new ApiError(400, "Job can't be set to Live. It has reached its Due Date.");
+            }
         }
 
-        // Commented until Auth middlewares are functional
-        // // Check Ownership
-        // const loggedInUser = req.login_user;
+        job.isLive = !job.isLive;
 
-        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
+        await job.save();
 
-        // if (!company) {
-        //     throw new ApiError(403, "Only company accounts can delete jobs");
-        // }
+        return {
+            message: `Job is now ${job.isLive ? 'Live' : 'Closed'}`,
+        };
 
-        // if (!company._id.equals(job.companyId)) {
-        //     throw new ApiError(403, "You do not own this job");
-        // }
+    } catch (error) {
+        if (error.statusCode) {
+            throw error;
+        }
 
+        console.error("Changing Job Liveness Internal System Error:", error);
+        throw new ApiError(500, 'Changing Job Liveness Internal Server Error');
+    }
+}
+
+const deleteJob = async (job) => {
+    try {
         await job.deleteOne();
 
-        await JobApplicationModel.deleteMany({ jobId: id });
+        await JobApplicationModel.deleteMany({ jobId: job._id });
 
         return { message: "Job deleted successfully" };
 
@@ -88,57 +92,14 @@ const deleteJob = async (id) => {
     }
 }
 
-const openCloseJob = async (id, req) => {
-    try {
-        const job = await JobModel.findById(id);
 
-        if (!job) {
-            throw new ApiError(404, 'Job not found');
-        }
 
-        // Commented until Auth middlewares are functional
-        // // Check Ownership
-        // const loggedInUser = req.login_user;
-        // const company = await CompanyModel.findOne({ userId: loggedInUser._id });
-
-        // if (!company) {
-        //     throw new ApiError(403, "Only company accounts can close or open jobs");
-        // }
-
-        // if (!company._id.equals(job.companyId)) {
-        //     throw new ApiError(403, "You do not own this job");
-        // }
-
-        if (!job.isLive) {
-            if (job.dueDate && job.dueDate < new Date()) {
-                throw new ApiError(400, "Job can't be set to Live. It has reached its Due Date.");
-            }
-        }
-
-        job.isLive = !job.isLive;
-
-        await job.save();
-
-        return {
-            message: `Job is now ${job.isLive ? 'Live' : 'Closed'}`,
-            isLive: job.isLive
-        };
-
-    } catch (error) {
-        if (error.statusCode) {
-            throw error;
-        }
-
-        console.error("Changing Job Liveness Internal System Error:", error);
-        throw new ApiError(500, 'Changing Job Liveness Internal Server Error');
-    }
-}
 
 export default {
     createJob,
     updateJob,
+    openCloseJob,
     deleteJob,
-    openCloseJob
 };
 
 
