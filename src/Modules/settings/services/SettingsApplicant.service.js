@@ -3,50 +3,79 @@ import ApiError from "../../../Utils/ApiError.utils.js";
 import { sendWelcomeEmail } from "./../../../Utils/email.utils.js"
 import bcrypt ,{ compareSync, hashSync } from "bcrypt";
 import JobSeekerModel from "../../../DB/Models/JobSeekerModel.js";
-
-// /**
-//  * Update Job Seeker Profile
-//  * @param {String} userId
-//  * @param {Object} data
-//  */
+import SkillModel from "../../../DB/Models/SkillsModel.js";
 
 
 
-export const updateProfile = async () => {
+
+export const updateProfile = async ( userId,data) => {
+
+  // console.log( userId , "hereuserid" );
+  // console.log( data , "heredata" );
+  
   const jobSeeker = await JobSeekerModel.findOne({ userId });
 
   if (!jobSeeker) {
     throw new ApiError(404, "Job seeker profile not found");
   }
 
-    /* ================= BASIC INFO ================= */
-    jobSeeker.headline = data.headline;
+  /* ================= BASIC INFO ================= */
+  const updatableFields = [
+    "headline",
+    "currentJobTitle",
+    "locationCity",
+    "locationCountry",
+    "aboutMe",
+    "experienceYears",
+    "openForOpportunities",
+    "highestQualification",
+  ];
 
-    jobSeeker.currentJobTitle = data.currentJobTitle;
-
-
-    jobSeeker.locationCity = data.locationCity;
-
-    jobSeeker.locationCountry = data.locationCountry;
-
-    jobSeeker.aboutMe = data.aboutMe;
-
-    jobSeeker.experienceYears = data.experienceYears;
-
-
-    jobSeeker.highestQualification = data.highestQualification;
-
-
-    jobSeeker.openForOpportunities = data.openForOpportunities;
+  updatableFields.forEach((field) => {
+    if (
+      data[field] !== undefined &&
+      data[field] !== jobSeeker[field]
+    ) {
+      jobSeeker[field] = data[field];
+    }
+  });
 
 
   /* ================= SKILLS ================= */
   if (Array.isArray(data.skills)) {
-    jobSeeker.skills = data.skills;
-  }
+    const skillIds = [];
 
+    for (const skill of data.skills) {
+      const skillName = skill.name.trim().toLowerCase();
+
+      //  check if skill already exists
+      let existingSkill = await SkillModel.findOne({ name: skillName });
+
+      if (!existingSkill) {
+        //  create new skill
+        existingSkill = await SkillModel.create({
+          name: skillName,
+          level: skill.level,
+          seekerId: userId,
+        });
+      }
+
+      skillIds.push(existingSkill._id);
+    }
+
+    //  prevent unnecessary update
+    if (
+      JSON.stringify(skillIds.map(String)) !==
+      JSON.stringify(jobSeeker.skills.map(String))
+    ) {
+      jobSeeker.skills = skillIds;
+    }
+  }
   /* ================= LANGUAGES ================= */
-  if (Array.isArray(data.languages)) {
+  if (
+    Array.isArray(data.languages) &&
+    JSON.stringify(data.languages) !== JSON.stringify(jobSeeker.languages)
+  ) {
     jobSeeker.languages = data.languages;
   }
 
@@ -58,20 +87,24 @@ export const updateProfile = async () => {
     };
   }
 
-  /* ================= EXPERIENCES ================= */
+  /* ================= EXPERIENCES (always update) ================= */
   if (Array.isArray(data.experiences)) {
     jobSeeker.experiences = data.experiences;
   }
 
-  /* ================= EDUCATIONS ================= */
+  /* ================= EDUCATIONS (always update) ================= */
   if (Array.isArray(data.educations)) {
     jobSeeker.educations = data.educations;
   }
 
-  /* ================= FILES ================= */
+  /* ================= FILES (always update) ================= */
+  if (data.resumeUrl !== undefined) {
     jobSeeker.resumeUrl = data.resumeUrl;
+  }
 
+  if (data.portfolioUrl !== undefined) {
     jobSeeker.portfolioUrl = data.portfolioUrl;
+  }
 
   await jobSeeker.save();
 
@@ -80,7 +113,6 @@ export const updateProfile = async () => {
     profile: jobSeeker,
   };
 };
-
 
 
 

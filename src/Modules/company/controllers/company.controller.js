@@ -35,7 +35,6 @@ catch(error){
 export const getMyCompanyJobs = async (req, res, next) => {
   try {
     const { companyId } = req.params;
-
     const {
       page = 1,
       limit = 7,
@@ -46,11 +45,9 @@ export const getMyCompanyJobs = async (req, res, next) => {
       search,
     } = req.query;
 
-    const loggedInUser = req.login_user;
-
-    if (loggedInUser._id.toString() !== companyId) {
+    if (!companyId) {
       return res.status(403).json({
-        message: "You are not allowed to access these jobs",
+        message: "This user is not associated with a company",
       });
     }
 

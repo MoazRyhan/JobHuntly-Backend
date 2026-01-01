@@ -89,5 +89,3 @@ export const getJobsByCompanyIdService = async (
     totalPages: Math.ceil(totalJobs / limit),
   };
 };
-
-

@@ -7,8 +7,11 @@ import JobApplicationRouter from '../Modules/jobApplications/jobApplications.rou
 import UploadRouter from '../Modules/upload/upload.routes.js'
 import companyRoutes from "../Modules/company/company.routes.js"
 import jobRouter from "../Modules/JobCRUD/job.route.js";
+// import companyRouter from "../Modules/CompanyDashboard/company.route.js";
+// import getMyJobApplicationsRouter  from "../Modules/applicant/controllers/applicant.controller.js";
 import generalRouter from "../Modules/general/general.route.js";
 
+import applicantRouter from "../Modules/applicant/applicant.route.js";
 
 
 
@@ -26,10 +29,13 @@ const routerHandler = async (app , express  ) => {
 
     app.use('/jobs', JobRouter)
     app.use('/company/jobs/:jobId', JobApplicationRouter)
+    app.use('/job-applications', applicantRouter);
+
+  
+    // app.use("/company", companyRouter)
 
     app.use("", generalRouter)
     app.use("/jobs", jobRouter)
-    //app.use("/company", companyRouter)
 
 
 

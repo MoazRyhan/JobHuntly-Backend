@@ -5,7 +5,14 @@ import * as SettingsApplicantService from "../services/SettingsApplicant.service
 
 
 export const updateProfile = asyncHandler(async (req, res) => {
-  const result = await SettingsApplicantService.updateProfile(req.body);
+  const userId = req.login_user._id
+  const data = req.body
+    // ⬅️ الملف جاي من multer
+  if (req.file) {
+    data.resumeUrl = `/Assets/resumes/${req.file.filename}`;
+  }
+
+  const result = await SettingsApplicantService.updateProfile(userId , data );
   res.status(201).json({ success: true, data: result });
 });
 
