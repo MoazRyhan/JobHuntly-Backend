@@ -10,6 +10,13 @@ const JobApplicationSchema = new mongoose.Schema(
 
     score: Number,
 
+    // When company user opens a job application, it got reviewed (true)
+    isReviewed: {
+      type: Boolean,
+      default: false
+    },
+    timeOfReview: Date,
+
     // snapshot fields
     fullName: String,
     email: String,

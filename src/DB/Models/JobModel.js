@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { QUESTION_TYPE, jobCategoryValues, jobEmploymentTypeValues, JOB_BENEFITS, jobWorkplaceModelValues  } from "../../Constants/constants.js";
+import { QUESTION_TYPE, jobCategoryValues, jobEmploymentTypeValues, JOB_BENEFITS, jobWorkplaceModelValues } from "../../Constants/constants.js";
 
 const JobSchema = new mongoose.Schema(
   {
@@ -36,7 +36,18 @@ const JobSchema = new mongoose.Schema(
     },
 
     postDate: { type: Date, default: Date.now },
-    dueDate: { type: Date },
+    dueDate: {
+      type: Date,
+      validate: {
+        validator: function (value) {
+          if (!value) return true;
+
+          // Ensure dueDate is after postDate
+          return (value > this.postDate);
+        },
+        message: 'Due date must be after the post date'
+      }
+    },
     isLive: {
       type: Boolean,
       default: true,
