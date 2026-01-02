@@ -9,10 +9,10 @@ const SettingsRouter = Router();
 // =======>  Applicant 
 SettingsRouter.use( AuthenticationMiddleware() )
 
-SettingsRouter.put("/updateProfile"/*, AuthorizationMiddleware([ SYSTEM_ROLE.JOB_SEEKER ]) */, MulterLocalMiddleware( PDFExtension ).single("resume") , SettingsController.updateProfile);
+SettingsRouter.put("/updateProfile"/*, AuthorizationMiddleware([ SYSTEM_ROLE.JOB_SEEKER ]) */, SettingsController.updateProfile);
 SettingsRouter.get("/getProfile", SettingsController.getProfile);
 
-
+// skills and rusme
 export default SettingsRouter;
 
 
@@ -60,13 +60,13 @@ DELETE    http://localhost:3000/users/me/social-links
 
 ⚙️ Settings → Login Details
 تغيير الإيميل
-PUT    http://localhost:3000/users/me/email
+PUT    http://localhost:3000/settings/change-email
 
 تغيير الباسورد
-PUT    http://localhost:3000/users/me/password
+PUT    http://localhost:3000/settings/reset-password
 
 ❌ Delete account
-DELETE http://localhost:3000/companies/me
+DELETE http://localhost:3000/settings/delete-account
 
 
 */
