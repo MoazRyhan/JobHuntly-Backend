@@ -105,6 +105,72 @@ const seedData = async () => {
             }
         ]);
         console.log("8 Companies added");
+        const companies = await CompanyModel.insertMany([
+            {
+                name: "Google",
+                website: "https://google.com",
+                industry: "Technology",
+                employeesRange: "10000+",
+                foundedDate: new Date("1998-09-04"),
+                about: "Leading technology company",
+                logoUrl: "https://logo.clearbit.com/google.com",
+                hqCity: "Mountain View",
+                hqCountry: "USA",
+                isVerified: true,
+                links: [
+                    { type: "LINKEDIN", value: "https://linkedin.com/company/google" },
+                    { type: "TWITTER", value: "https://twitter.com/google" },
+                    { type: "FACEBOOK", value: "https://facebook.com/google" }
+                ],
+                techStack: [
+                    { name: "Python" },
+                    { name: "Go" },
+                    { name: "JavaScript" }
+                ]
+            },
+            {
+                name: "Microsoft",
+                website: "https://microsoft.com",
+                industry: "Technology",
+                employeesRange: "10000+",
+                foundedDate: new Date("1975-04-04"),
+                about: "Software and cloud computing company",
+                logoUrl: "https://logo.clearbit.com/microsoft.com",
+                hqCity: "Redmond",
+                hqCountry: "USA",
+                isVerified: true,
+                links: [
+                    { type: "LINKEDIN", value: "https://linkedin.com/company/microsoft" },
+                    { type: "TWITTER", value: "https://twitter.com/microsoft" }
+                ],
+                techStack: [
+                    { name: "C#" },
+                    { name: "TypeScript" },
+                    { name: "Azure" }
+                ]
+            },
+            {
+                name: "Amazon",
+                website: "https://amazon.com",
+                industry: "E-commerce",
+                employeesRange: "10000+",
+                foundedDate: new Date("1994-07-05"),
+                about: "E-commerce and cloud computing giant",
+                logoUrl: "https://logo.clearbit.com/amazon.com",
+                hqCity: "Seattle",
+                hqCountry: "USA",
+                isVerified: true,
+                links: [
+                    { type: "LINKEDIN", value: "https://linkedin.com/company/amazon" },
+                    { type: "TWITTER", value: "https://twitter.com/amazon" }
+                ],
+                techStack: [
+                    { name: "Java" },
+                    { name: "AWS" },
+                    { name: "Python" }
+                ]
+            }
+        ]);
         const skills = await SkillModel.insertMany([
             { name: "JavaScript" },
             { name: "React" },
