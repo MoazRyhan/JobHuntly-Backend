@@ -62,38 +62,34 @@ POST    http://localhost:3000/companies/me
 🖼 Company Logo
 PUT   http://localhost:3000/companies/me/logo
 
-🏢 Company Details (Overview)
-PUT    http://localhost:3000/companies/me/details
 
 📍 Company Locations
-POST   http://localhost:3000/companies/me/locations
 DELETE http://localhost:3000/companies/me/locations/:id
 
+
 🧑‍💼 Company Info (Employees / Industry / Founded)
-PUT    http://localhost:3000/companies/me/info
+DELETE    http://localhost:3000/companies/me/info
+
 
 💻 Tech Stack
-POST   http://localhost:3000/companies/me/tech-stack
 DELETE http://localhost:3000/companies/me/tech-stack/:id
 
-📝 About Company
-PUT    http://localhost:3000/companies/me/about
 
-🔗 Company Social Links (Settings → Social Links)
-PUT    http://localhost:3000/companies/me/social-links
+DELETE http://localhost:3000/benefits/:id
 
 =====================  ( till we decide to add it )  🎁 Benefits =====================
-PUT    http://localhost:3000/benefits/:id
-DELETE http://localhost:3000/benefits/:id
+
 
 🖼 Working at Company (Gallery)
 POST   http://localhost:3000/companies/me/gallery
 DELETE http://localhost:3000/company-gallery/:id
 
+
 💼 Jobs (Company Open Positions) ==========  every one will forget this =========
 POST   http://localhost:3000/companies/me/jobs
 PUT    http://localhost:3000/jobs/:id
 DELETE http://localhost:3000/jobs/:id
+
 
 👀 Public Company Profile (للـ Job Seekers)
 GET    http://localhost:3000/companies/:companyId
