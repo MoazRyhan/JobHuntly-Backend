@@ -106,12 +106,27 @@ export const patchJobStatus = asyncHandler(async (req, res) => {
 });
 
 export const getDashboardStats = asyncHandler(async (req, res) => {
-  const [seekersCount, companiesCount, jobsCount, applicationsCount] =
+  const [seekersCount, companiesCount, jobsCount, applicationsCount, jobDistribution] =
     await Promise.all([
       UserModel.countDocuments({ role: SYSTEM_ROLE.JOB_SEEKER }),
       CompanyModel.countDocuments(),
       JobModel.countDocuments({ isLive: true }),
       JobApplicationModel.countDocuments(),
+      JobModel.aggregate([
+        { $match: { isLive: true } },
+        {
+          $group: {
+            _id: { 
+              $ifNull: [
+                "$employmentType", 
+                { $ifNull: ["$employementType", "$employmentTypes"] }
+              ] 
+            }, 
+            count: { $sum: 1 },
+          },
+        },
+        { $project: { name: { $ifNull: ["$_id", "Unknown"] }, value: "$count", _id: 0 } },
+      ]),
     ]);
 
   res.status(200).json({
@@ -121,6 +136,56 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
       totalCompanies: companiesCount,
       liveJobs: jobsCount,
       totalApplications: applicationsCount,
+      jobDistribution,
     },
+  });
+});
+
+export const getRecentActivity = asyncHandler(async (req, res) => {
+  const [latestUsers, latestCompanies, latestJobs, latestApplications] = await Promise.all([
+    UserModel.find({ role: SYSTEM_ROLE.JOB_SEEKER }).sort({ createdAt: -1 }).limit(5).select("fullName createdAt"),
+    CompanyModel.find().sort({ createdAt: -1 }).limit(5).select("name createdAt"),
+    JobModel.find().sort({ createdAt: -1 }).limit(5).select("title createdAt"),
+    JobApplicationModel.find().sort({ createdAt: -1 }).limit(5).populate("seekerId", "fullName").populate("jobId", "title").select("createdAt"),
+  ]);
+
+  const activities = [
+    ...latestUsers.map((u) => ({
+      id: u._id,
+      user: u.fullName,
+      action: "registered as a new user",
+      time: u.createdAt,
+      type: "user",
+    })),
+    ...latestCompanies.map((c) => ({
+      id: c._id,
+      user: c.name,
+      action: "joined as a company",
+      time: c.createdAt,
+      type: "company",
+    })),
+    ...latestJobs.map((j) => ({
+      id: j._id,
+      user: "New Job Posted", // Ideally we'd have company name here, but title suffices for now or we populate
+      action: `posted job: ${j.title}`,
+      time: j.createdAt,
+      type: "job",
+    })),
+    ...latestApplications.map((a) => ({
+      id: a._id,
+      user: a.seekerId?.fullName || "Anonymous Seeker",
+      action: `applied to ${a.jobId?.title || "a job"}`,
+      time: a.createdAt,
+      type: "application",
+    })),
+  ];
+
+  // Sort combined activities by time descending
+  activities.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+  // Return top 10
+  res.status(200).json({
+    success: true,
+    data: activities.slice(0, 10),
   });
 });
