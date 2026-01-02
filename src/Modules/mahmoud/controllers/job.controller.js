@@ -216,3 +216,153 @@ export const filterJobs = async (req, res, next) => {
         next(error);
     }
 };
+
+
+
+
+// ============ GET ALL COMPANIES ============
+export const getAllCompanies = async (req, res, next) => {
+    try {
+        const companies = await CompanyModel.find({ isVerified: true });
+        const companiesWithJobCount = await Promise.all(
+            companies.map(async (company) => {
+                const jobCount = await JobModel.countDocuments({ 
+                    companyId: company._id,
+                    isLive: true 
+                });
+                return {
+                    ...company.toObject(),
+                    jobCount: jobCount
+                };
+            })
+        );
+        res.status(200).json({
+            success: true,
+            message: "Companies fetched successfully",
+            count: companiesWithJobCount.length,
+            data: companiesWithJobCount
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ============ FILTER COMPANIES ============
+export const filterCompanies = async (req, res, next) => {
+    try {
+        const { industry, companySize, name } = req.query;
+        
+        let query = { isVerified: true };
+        if (name) {
+            query.name = { $regex: name, $options: 'i' };
+        }
+        if (industry) {
+            query.industry = { $regex: industry, $options: 'i' };
+        }
+        const companies = await CompanyModel.find(query);
+        let companiesWithJobCount = await Promise.all(
+            companies.map(async (company) => {
+                const jobCount = await JobModel.countDocuments({ 
+                    companyId: company._id,
+                    isLive: true 
+                });
+                return {
+                    ...company.toObject(),
+                    jobCount: jobCount
+                };
+            })
+        );
+        if (companySize) {
+            companiesWithJobCount = companiesWithJobCount.filter(company => {
+                const range = company.employeesRange;
+                if (!range) return false;
+                
+                switch(companySize) {
+                    case '1-50':
+                        return range === '1-50' || range.includes('1-50');
+                    case '51-150':
+                        return range === '51-150' || range.includes('51-150');
+                    case '151-250':
+                        return range === '151-250' || range.includes('151-250');
+                    case '251-500':
+                        return range === '251-500' || range.includes('251-500');
+                    case '501-1000':
+                        return range === '501-1000' || range.includes('501-1000');
+                    case '1000+':
+                        return range === '10000+' || range === '5000-10000' || range.includes('1000');
+                    default:
+                        return true;
+                }
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: "Filtered companies",
+            count: companiesWithJobCount.length,
+            data: companiesWithJobCount
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+// ============ GET COMPANY BY ID ============
+export const getCompanyById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        
+        const company = await CompanyModel.findById(id);
+
+        if (!company) {
+            return res.status(404).json({
+                success: false,
+                message: "Company not found"
+            });
+        }
+
+        const jobs = await JobModel.find({ companyId: id, isLive: true })
+            .populate("skillsIds", "name");
+
+        let linkedin = '';
+        let facebook = '';
+        let twitter = '';
+        
+        if (company.links && company.links.length > 0) {
+            company.links.forEach(link => {
+                if (link.type === 'LINKEDIN') linkedin = link.value;
+                if (link.type === 'FACEBOOK') facebook = link.value;
+                if (link.type === 'TWITTER') twitter = link.value;
+            });
+        }
+
+        const formattedCompany = {
+            id: company._id,
+            name: company.name,
+            logo: company.logoUrl,  
+            website: company.website || '',
+            industry: company.industry || '',
+            about: company.about || '',
+            founded: company.foundedDate ? new Date(company.foundedDate).getFullYear().toString() : 'N/A',
+            employees: company.employeesRange || 'N/A',
+            linkedin: linkedin,
+            facebook: facebook,
+            twitter: twitter,
+            techStack: company.techStack || [],
+            images: company.images || [],
+            locations: company.countries || [],
+            hqCity: company.hqCity,
+            hqCountry: company.hqCountry,
+            jobs: jobs,
+            jobCount: jobs.length
+        };
+
+        res.status(200).json({
+            success: true,
+            data: formattedCompany
+        });
+    } catch (error) {
+        next(error);
+    }
+};
