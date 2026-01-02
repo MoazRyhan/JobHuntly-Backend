@@ -8,8 +8,8 @@ import UploadRouter from '../Modules/upload/upload.routes.js'
 import companyRoutes from "../Modules/company/company.routes.js"
 import jobRouter from "../Modules/JobCRUD/job.route.js";
 import skillsRouter from "../Modules/Skills/skills.route.js";
-
 import applicantRouter from "../Modules/applicant/applicant.route.js";
+import companyDashboardRouter from "../Modules/CompanyDashboard/companyDashboard.route.js";
 
 
 
@@ -31,6 +31,7 @@ const routerHandler = async (app, express) => {
 
     app.use("/skills", skillsRouter)
     app.use("/jobs", jobRouter)
+    app.use("/companyDashboard", companyDashboardRouter)
 
 
 

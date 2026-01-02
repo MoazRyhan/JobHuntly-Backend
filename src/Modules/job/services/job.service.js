@@ -2,6 +2,7 @@ import JobModel from '../../../DB/Models/JobModel.js'
 import JobApplicationModel from '../../../DB/Models/JobApplicationModel.js'
 import mongoose from 'mongoose'
 import ApiError from '../../../Utils/ApiError.utils.js'
+import JobAnalyticsModel from '../../../DB/Models/JobAnalyticsModel.js'
 
 export const getAllJobsService = async () => {
   const jobs = await JobModel.find().populate('companyId')
@@ -20,6 +21,20 @@ export const getJobService = async (jobId, seekerId = null) => {
   if (!job) {
     throw new ApiError(404, 'job notfound')
   }
+
+  // Incrementing the Job's Views in its Job Analytical document
+  const today = new Date()
+  today.setHours(2, 0, 0, 0); // Normalize to midnight
+
+  await JobAnalyticsModel.findOneAndUpdate(
+    { jobId, date: today },
+    {
+      $inc: { views: 1 }, // Increment view count
+      $setOnInsert: { companyId: job.companyId } // Set companyId only on creation
+    },
+    // If not found, a Job Analytical document will be created
+    { upsert: true, new: true } 
+  );
 
   let hasApplied = false
 
