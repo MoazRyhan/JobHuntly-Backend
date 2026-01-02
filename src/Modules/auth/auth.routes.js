@@ -3,6 +3,7 @@ import * as authController from "./controllers/auth.controller.js"
 import validate from "../../Middlewares/validate.js";
 import { registerSchema , loginSchema } from "./validators/auth.validator.js";
 import { AuthenticationMiddleware} from '../../Middlewares/AuthenticationMiddleware.js';
+import { forgotPassword,resetPassword } from "./controllers/forgotPassword.controller.js";
 
 const AuthRouter = Router();
 
@@ -22,9 +23,8 @@ AuthRouter.get(
   }
 );
 
-
-
-
+AuthRouter.post("/forgot-password", forgotPassword);
+AuthRouter.post("/reset-password", resetPassword);
 
 
 
