@@ -25,6 +25,12 @@ export const getJobsByCompanyIdService = async (
   const skip = (page - 1) * limit;
 
   const now = new Date();
+
+    await JobModel.updateMany(
+    { companyId, dueDate: { $lt: now }, isLive: true },
+    { $set: { isLive: false } }
+  );
+  
   const query = { companyId };
 
   if (filters.search) {

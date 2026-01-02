@@ -34,7 +34,7 @@ catch(error){
 
 export const getMyCompanyJobs = async (req, res, next) => {
   try {
-    const { companyId } = req.params;
+    const companyId = req.login_user?._id;
     const {
       page = 1,
       limit = 7,
