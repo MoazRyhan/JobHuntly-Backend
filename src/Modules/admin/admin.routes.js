@@ -14,5 +14,6 @@ AdminRouter.get("/companies", adminController.getCompanies);
 AdminRouter.patch("/users/:userId/status", adminController.patchUserStatus);
 AdminRouter.patch("/jobs/:jobId/status", adminController.patchJobStatus);
 AdminRouter.get("/dashboard-stats", adminController.getDashboardStats);
+AdminRouter.get("/recent-activity", adminController.getRecentActivity);
 
 export default AdminRouter;
