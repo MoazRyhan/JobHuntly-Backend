@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getLatestJobs, getAllJobs, getCategories, getCompaniesWeHelped , getJobById , searchJobs ,    filterJobs} from "./controllers/job.controller.js";
+import { getLatestJobs, getAllJobs, getCategories, getCompaniesWeHelped , getJobById , searchJobs ,    filterJobs,  getAllCompanies, filterCompanies, getCompanyById} from "./controllers/job.controller.js";
 
 const MahmoudRouter = Router();
 
@@ -17,5 +17,8 @@ MahmoudRouter.get("/categories", getCategories);
 
 // Companies API
 MahmoudRouter.get("/companiesWeHelped", getCompaniesWeHelped);
+MahmoudRouter.get("/companies", getAllCompanies);
+MahmoudRouter.get("/companies/filter", filterCompanies);
+MahmoudRouter.get("/companies/:id", getCompanyById);
 
 export default MahmoudRouter;
