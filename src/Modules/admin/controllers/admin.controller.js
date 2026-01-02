@@ -1,6 +1,8 @@
 import { asyncHandler } from "../../../Utils/asyncHandler.utils.js";
 import UserModel from "../../../DB/Models/UserModel.js";
 import CompanyModel from "../../../DB/Models/CompanyModel.js";
+import JobModel from "../../../DB/Models/JobModel.js";
+import JobApplicationModel from "../../../DB/Models/JobApplicationModel.js";
 import ApiError from "../../../Utils/ApiError.utils.js";
 import { SYSTEM_ROLE } from "../../../Constants/constants.js";
 
@@ -80,5 +82,45 @@ export const patchUserStatus = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: user,
+  });
+});
+
+export const patchJobStatus = asyncHandler(async (req, res) => {
+  const { jobId } = req.params;
+  const { isLive } = req.body;
+
+  const job = await JobModel.findByIdAndUpdate(
+    jobId,
+    { isLive },
+    { new: true }
+  );
+
+  if (!job) {
+    throw new ApiError(404, "Job not found");
+  }
+
+  res.status(200).json({
+    success: true,
+    data: job,
+  });
+});
+
+export const getDashboardStats = asyncHandler(async (req, res) => {
+  const [seekersCount, companiesCount, jobsCount, applicationsCount] =
+    await Promise.all([
+      UserModel.countDocuments({ role: SYSTEM_ROLE.JOB_SEEKER }),
+      CompanyModel.countDocuments(),
+      JobModel.countDocuments({ isLive: true }),
+      JobApplicationModel.countDocuments(),
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      totalUsers: seekersCount,
+      totalCompanies: companiesCount,
+      liveJobs: jobsCount,
+      totalApplications: applicationsCount,
+    },
   });
 });
