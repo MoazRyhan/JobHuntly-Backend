@@ -9,7 +9,7 @@ router.get("/:companyId",AuthenticationMiddleware(), getCompanyById);
 router.post("/", createCompany);
 
 router.get(
-  "/:companyId/jobs",
+  "/me/jobs",
   AuthenticationMiddleware(),
   AuthorizationMiddleware(["COMPANY"]),
   getMyCompanyJobs
