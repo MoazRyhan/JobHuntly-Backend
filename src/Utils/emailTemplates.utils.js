@@ -1,3 +1,4 @@
+import 'dotenv/config';
 export const welcomeEmailTemplate = (username) => {
   return `
   <!DOCTYPE html>
@@ -39,8 +40,7 @@ export const welcomeEmailTemplate = (username) => {
 };
 
 export const passwordResetEmail = (username, resetToken) => {
-  const resetUrl =
-    `${process.env.FRONTEND_URL || "http://localhost:3000"}/reset-password?token=${resetToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password?token=${encodeURIComponent(resetToken)}`;
 
   return `
   <!DOCTYPE html>
@@ -65,16 +65,16 @@ export const passwordResetEmail = (username, resetToken) => {
         <h2>Hello ${username}!</h2>
         <p>We received a request to reset your password. Click the button below to reset it:</p>
         <center>
-          <a href="${resetUrl}" class="button">Reset Password</a>
+          <a href="${resetUrl}" class="button" style="color:white;">Reset Password</a>
         </center>
         <p>Or copy and paste this link into your browser:</p>
         <p style="word-break: break-all; color: #4F46E5;">${resetUrl}</p>
         <div class="warning">
-          <strong>Security Notice:</strong> This link will expire in 5 hours. If you didn't request this password reset, please ignore this email.
+          <strong>Security Notice:</strong> This link will expire in 1 hour. If you didn't request this password reset, please ignore this email.
         </div>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} Social Media API. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Job Huntly. All rights reserved.</p>
       </div>
     </div>
   </body>
