@@ -1,31 +1,28 @@
-import UserModel from "../DB/Models/UserModel.js";
-import { verifyAccessToken } from "../Utils/tokens.utils.js";
+import UserModel from '../DB/Models/UserModel.js'
+import { verifyAccessToken } from '../Utils/tokens.utils.js'
 
 export const AuthenticationMiddleware = () => {
   return async (req, res, next) => {
     try {
-      const authHeader = req.headers.authorization;
+      const authHeader = req.headers.authorization
 
       if (!authHeader) {
-        return res.status(401).json({ message: "please login first" });
+        return res.status(401).json({ message: 'please login first' })
       }
 
       // Bearer <token>
-      const token = authHeader.split(" ")[1];
+      const token = authHeader.split(' ')[1]
 
       if (!token) {
-        return res.status(401).json({ message: "invalid token format" });
+        return res.status(401).json({ message: 'invalid token format' })
       }
 
-      const decoded = verifyAccessToken(token);
+      const decoded = verifyAccessToken(token)
 
-      const user = await UserModel.findById(
-        decoded.userId,
-        "-password -__v"
-      );
+      const user = await UserModel.findById(decoded.userId, '-password -__v')
 
       if (!user) {
-        return res.status(401).json({ message: "user not found" });
+        return res.status(401).json({ message: 'user not found' })
       }
 
       req.login_user = {
@@ -34,43 +31,40 @@ export const AuthenticationMiddleware = () => {
           token_id: decoded.jti,
           expiration_date: decoded.exp,
         },
-      };
+      }
 
-      next();
+      next()
     } catch (error) {
       return res.status(401).json({
-        message: "invalid or expired access token",
-      });
+        message: 'invalid or expired access token',
+      })
     }
-  };
-};
+  }
+}
 
 //             ===================   it's work now  ========================
 
 export const AuthorizationMiddleware = (allow_role = []) => {
   return async (req, res, next) => {
     try {
-      const authHeader = req.headers.authorization;
+      const authHeader = req.headers.authorization
       if (!authHeader) {
-        return res.status(401).json({ message: "access token is required" });
+        return res.status(401).json({ message: 'access token is required' })
       }
 
-      const token = authHeader.split(" ")[1];
-      const decoded = verifyAccessToken(token);
+      const token = authHeader.split(' ')[1]
+      const decoded = verifyAccessToken(token)
 
-      const user = await UserModel.findById(
-        decoded.userId,
-        "-password -__v"
-      );
+      const user = await UserModel.findById(decoded.userId, '-password -__v')
 
       if (!user) {
-        return res.status(401).json({ message: "user not found" });
+        return res.status(401).json({ message: 'user not found' })
       }
 
       if (allow_role.length && !allow_role.includes(user.role)) {
         return res.status(403).json({
-          message: "you are not allowed to access this api",
-        });
+          message: 'you are not allowed to access this api',
+        })
       }
 
       req.login_user = {
@@ -79,32 +73,38 @@ export const AuthorizationMiddleware = (allow_role = []) => {
           token_id: decoded.jti,
           expiration_date: decoded.exp,
         },
-      };
-
-      next();
-    } catch (error) {
-      if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
-        return res.status(401).json({ message: "invalid or expired token" });
       }
 
-      return res.status(500).json({ message: "authorization error" });
+      next()
+    } catch (error) {
+      if (
+        error.name === 'JsonWebTokenError' ||
+        error.name === 'TokenExpiredError'
+      ) {
+        return res.status(401).json({ message: 'invalid or expired token' })
+      }
+
+      return res.status(500).json({ message: 'authorization error' })
     }
-  };
-};
-
-
+  }
+}
 
 export const OptionalAuthenticationMiddleware = () => {
   return async (req, res, next) => {
     try {
-      const { access_token } = req.headers
-      if (!access_token) {
+      let token = req.headers.access_token
+
+      if (!token && req.headers.authorization) {
+        token = req.headers.authorization.split(' ')[1]
+      }
+
+      if (!token) {
         // No token → guest
         req.login_user = null
         return next()
       }
 
-      const decoding_access_token = verifyAccessToken(access_token)
+      const decoding_access_token = verifyAccessToken(token)
 
       const user = await UserModel.findById(
         decoding_access_token.userId,
