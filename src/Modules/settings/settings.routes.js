@@ -48,6 +48,6 @@ SettingsRouter.delete(
   SettingsController.deleteAccount
 );
 
-// skills /rusme /LOGO_url /bg  ( images in company )
+// skills 🫸/rusme 🫸/LOGO_url /bg  ( images in company )
 export default SettingsRouter;
 
