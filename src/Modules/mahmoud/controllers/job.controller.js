@@ -180,6 +180,7 @@ export const filterJobs = async (req, res, next) => {
             salaryMin,       
             salaryMax,        
         } = req.query;
+        
         let query = { isLive: true };
         if (title) {
             query.title = { $regex: title, $options: 'i' };
