@@ -1,14 +1,19 @@
 import { Router } from "express";
 import * as SettingsController from "./controllers/Settings.controller.js"
 import { AuthenticationMiddleware, AuthorizationMiddleware } from "../../Middlewares/AuthenticationMiddleware.js";
-import { PDFExtension, SYSTEM_ROLE } from "../../Constants/constants.js";
+import { ImageExtensions, SYSTEM_ROLE } from "../../Constants/constants.js";
 import { MulterLocalMiddleware } from './../../Middlewares/MulterMiddleware.js';
+
+
 
 const SettingsRouter = Router();
 
 /* ================= AUTH ================= */
 SettingsRouter.use( AuthenticationMiddleware() )
 SettingsRouter.use( AuthorizationMiddleware([SYSTEM_ROLE.JOB_SEEKER,SYSTEM_ROLE.COMPANY,SYSTEM_ROLE.ADMIN]));
+
+
+
 
 // ==========================  applicants 
 
@@ -19,8 +24,8 @@ SettingsRouter.get("/getProfile",SettingsController.getProfile);
 
 
 
-// ==========================  Recruiter 
 
+// ==========================  Recruiter 
 
 SettingsRouter.put("/updateProfileRecruiter",SettingsController.updateCompanyProfile);
 
@@ -28,7 +33,35 @@ SettingsRouter.get("/getProfileRecruiter",SettingsController.getCompanyProfile);
 
 
 
-// ===================================== applicants and Recruiter 
+
+
+
+
+
+
+
+
+
+
+
+
+// ===================================== all
+
+
+/* ================= LOGO ================= */
+SettingsRouter.post(
+  "/logoUrl",
+  MulterLocalMiddleware("logo", ImageExtensions).single("file"),
+  SettingsController.uploadLogo
+)
+
+/* ================= BACKGROUND ================= */
+SettingsRouter.post(
+  "/backgroundUrl",
+  MulterLocalMiddleware("background", ImageExtensions).single("file"),
+  SettingsController.uploadBackground
+)
+
 
 /* ================= EMAIL ================= */
 SettingsRouter.put(
@@ -48,6 +81,9 @@ SettingsRouter.delete(
   SettingsController.deleteAccount
 );
 
-// skills 🫸/rusme 🫸/LOGO_url /bg  ( images in company )
+
+
+
+// skills / and the nodemailer
 export default SettingsRouter;
 
