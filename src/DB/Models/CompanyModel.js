@@ -19,6 +19,7 @@ const CompanySchema = new mongoose.Schema(
     employeesRange: String,
     about: String,
     logoUrl: String,
+    backGroundUrl: String,
         
     hqCity: String,
     hqCountry: String,
@@ -54,7 +55,7 @@ const CompanySchema = new mongoose.Schema(
     techStack: [
       {
         name: { type: String, required: true },
-        logo:  { type: String , enum: Object.values(TECH_STACK),},
+        logo:  { type: String , enum: Object.values(TECH_STACK)},
     }
     ],
 

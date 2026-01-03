@@ -3,17 +3,12 @@ import ApiError from "../../../Utils/ApiError.utils.js";
 import { sendWelcomeEmail } from "./../../../Utils/email.utils.js"
 import bcrypt ,{ compareSync, hashSync } from "bcrypt";
 import JobSeekerModel from "../../../DB/Models/JobSeekerModel.js";
-import SkillModel from "../../../DB/Models/SkillsModel.js";
 import CompanyModel from "../../../DB/Models/CompanyModel.js";
 import { SYSTEM_ROLE } from "../../../Constants/constants.js";
 
 
-
-
 export const updateProfile = async ( userId,data) => {
 
-  // console.log( userId , "hereuserid" );
-  // console.log( data , "heredata" );
   
   const jobSeeker = await JobSeekerModel.findOne({ userId });
 
@@ -111,9 +106,6 @@ export const updateProfile = async ( userId,data) => {
   };
 };
 
-
-
-
 export const getProfile = async (userId) => {
   /* ================= USER ================= */
   console.log( userId );
@@ -168,7 +160,60 @@ export const getProfile = async (userId) => {
 };
 
 
-export const changeEmail = async (userId, { newEmail, password }) => {
+
+
+
+
+// ===================================== for all 
+
+
+export const uploadImage = async ({
+  file,
+  req,
+  role,
+  folder,
+  userId,
+}) => {
+  if (!file) {
+    throw new ApiError(400, "No file uploaded")
+  }
+
+  const fileUrl = `${req.protocol}://${req.get("host")}/assets/${folder}/${file.filename}`
+
+  /* ================= ROLE BASED SAVE ================= */
+
+  if (role === SYSTEM_ROLE.JOB_SEEKER) {
+    const jobSeeker = await JobSeekerModel.findOne({ userId })
+    if (!jobSeeker) {
+      throw new ApiError(404, "Job seeker profile not found")
+    }
+
+    if (folder === "logo") jobSeeker.logoUrl = fileUrl
+    if (folder === "background") jobSeeker.backGroundUrl = fileUrl
+
+    await jobSeeker.save()
+  }
+
+  if (role === SYSTEM_ROLE.COMPANY) {
+    const company = await CompanyModel.findOne({ userId })
+    if (!company) {
+      throw new ApiError(404, "Company profile not found")
+    }
+
+    if (folder === "logo") company.logoUrl = fileUrl
+    if (folder === "background") company.backGroundUrl = fileUrl
+
+    await company.save()
+  }
+
+  return {
+    message: "File uploaded successfully",
+    url: fileUrl,
+  }
+}
+
+
+export const changeEmail = async (userId, { newEmail }) => {
   const user = await UserModel.findById(userId).select("+password")
 
   if (!user) throw new ApiError(404, "User not found")

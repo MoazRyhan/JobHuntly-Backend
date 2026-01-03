@@ -1,8 +1,10 @@
 import { Router } from "express";
 import * as SettingsController from "./controllers/Settings.controller.js"
 import { AuthenticationMiddleware, AuthorizationMiddleware } from "../../Middlewares/AuthenticationMiddleware.js";
-import { PDFExtension, SYSTEM_ROLE } from "../../Constants/constants.js";
+import { ImageExtensions, SYSTEM_ROLE } from "../../Constants/constants.js";
 import { MulterLocalMiddleware } from './../../Middlewares/MulterMiddleware.js';
+
+
 
 const SettingsRouter = Router();
 
@@ -10,10 +12,24 @@ const SettingsRouter = Router();
 SettingsRouter.use( AuthenticationMiddleware() )
 SettingsRouter.use( AuthorizationMiddleware([SYSTEM_ROLE.JOB_SEEKER,SYSTEM_ROLE.COMPANY,SYSTEM_ROLE.ADMIN]));
 
+
+
+
 // ==========================  applicants 
-/* ================= PROFILE ================= */
+
 SettingsRouter.put("/updateProfile", SettingsController.updateProfile);
 
+SettingsRouter.get("/getProfile",SettingsController.getProfile);
+
+
+
+
+
+// ==========================  Recruiter 
+
+SettingsRouter.put("/updateProfileRecruiter",SettingsController.updateCompanyProfile);
+
+SettingsRouter.get("/getProfileRecruiter",SettingsController.getCompanyProfile);
 
 
 
@@ -28,14 +44,23 @@ SettingsRouter.put("/updateProfile", SettingsController.updateProfile);
 
 
 
-// ===================================== applicants and Recruiter 
 
-/* ================= PROFILE ================= */
+// ===================================== all
 
-SettingsRouter.get(
-  "/getProfile",
-  SettingsController.getProfile
-);
+
+/* ================= LOGO ================= */
+SettingsRouter.post(
+  "/logoUrl",
+  MulterLocalMiddleware("logo", ImageExtensions).single("file"),
+  SettingsController.uploadLogo
+)
+
+/* ================= BACKGROUND ================= */
+SettingsRouter.post(
+  "/backgroundUrl",
+  MulterLocalMiddleware("background", ImageExtensions).single("file"),
+  SettingsController.uploadBackground
+)
 
 
 /* ================= EMAIL ================= */
@@ -56,6 +81,9 @@ SettingsRouter.delete(
   SettingsController.deleteAccount
 );
 
-// skills /and /rusme /aveter_url /bg
+
+
+
+// skills / and the nodemailer
 export default SettingsRouter;
 
