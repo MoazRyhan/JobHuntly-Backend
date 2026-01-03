@@ -9,13 +9,23 @@ dotenv.config()
 const bootstrap = () => {
   const app = express()
 
-  // for connection with front end
   app.use(
     cors({
       origin: ['http://localhost:5173', 'http://localhost:3001'],
       credentials: true,
     })
   )
+
+  // Stripe webhook needs raw body BEFORE express.json() parses it
+  // This must come before app.use(express.json())
+  app.post(
+    '/stripe/webhook',
+    express.raw({ type: 'application/json' }),
+    async (req, res, next) => {
+      // This will be handled by the Stripe router
+      next();
+    }
+  );
 
   app.use(express.json())
   app.use('/assets', express.static('Assets'))
