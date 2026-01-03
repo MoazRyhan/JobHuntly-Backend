@@ -11,6 +11,7 @@ import skillsRouter from '../Modules/Skills/skills.route.js'
 import applicantRouter from '../Modules/applicant/applicant.route.js'
 import companyDashboardRouter from '../Modules/CompanyDashboard/companyDashboard.route.js'
 import AdminRouter from '../Modules/admin/admin.routes.js'
+import StripeRouter from '../Modules/Stripe/stripe.routes.js'
 
 const routerHandler = async (app, express) => {
   app.use(express.json())
@@ -18,6 +19,7 @@ const routerHandler = async (app, express) => {
   app.use('/admin', AdminRouter)
 
   app.use('/auth', AuthRouter)
+  app.use('/stripe', StripeRouter)
   app.use('/settings', SettingsRouter)
   app.use('/upload', UploadRouter)
 
