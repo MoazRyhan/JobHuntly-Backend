@@ -13,18 +13,17 @@ export const getMyJobApplicationsService = async (userId) => {
   }
 
   const applications = await JobApplicationModel
-    .find({ seekerId: seeker._id })
-    .populate({
-      path: 'jobId',
-      select: 'title companyId',
-      populate: {
-        path: 'companyId',
-        select: 'name'
-      }
-    })
-    .sort({ appliedAt: -1 });
+  .find({ seekerId: userId })
+  .populate({
+    path: 'jobId',
+    select: 'title companyId',
+    populate: {
+      path: 'companyId',
+      select: 'name'
+    }
+  })
+  .sort({ appliedAt: -1 });
 
-      console.log("APPLICATIONS:", applications);
 
   return applications.map(app => ({
     id: app._id,
