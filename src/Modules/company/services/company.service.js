@@ -15,22 +15,33 @@ export const createCompanyService= async(companyData)=>{
 
 
 export const getJobsByCompanyIdService = async (
-  companyId,
+  userId,
   page,
   limit,
   filters = {}
 ) => {
+
+  const company = await CompanyModel.findOne({ userId });
+
+  if (!company) {
+    const error = new Error("This user is not associated with a company");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const companyId = company._id;
+
   page = Number(page);
   limit = Number(limit);
   const skip = (page - 1) * limit;
 
   const now = new Date();
 
-    await JobModel.updateMany(
+  await JobModel.updateMany(
     { companyId, dueDate: { $lt: now }, isLive: true },
     { $set: { isLive: false } }
   );
-  
+
   const query = { companyId };
 
   if (filters.search) {
@@ -42,23 +53,19 @@ export const getJobsByCompanyIdService = async (
   }
 
   if (filters.status === "live") {
-    query.$or = [
-      { dueDate: { $gte: now } },
-      { dueDate: { $exists: false } },
-    ];
+    query.isLive = true;
   }
 
   if (filters.status === "closed") {
-    query.$or = [
-      { isLive: false },
-      { dueDate: { $lt: now } },
-    ];
+    query.isLive = false;
   }
+
+  console.log("Final Job Query:", query);
 
   const totalJobs = await JobModel.countDocuments(query);
 
   const jobs = await JobModel.find(query)
-    .select("title employmentType dueDate isLive createdAt") 
+    .select("title employmentType dueDate isLive createdAt")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -78,7 +85,7 @@ export const getJobsByCompanyIdService = async (
       return {
         _id: job._id,
         title: job.title,
-        jobType: job.employmentType, 
+        jobType: job.employmentType,
         status,
         dueDate: job.dueDate,
         createdAt: job.createdAt,
