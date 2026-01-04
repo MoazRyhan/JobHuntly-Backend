@@ -3,18 +3,34 @@ import DataBase from './DB/connection.js'
 import routerHandler from './Utils/routerHandler.utils.js'
 import dotenv from 'dotenv'
 import cors from 'cors'
+import rateLimit from 'express-rate-limit'
+import helmet from 'helmet'
 
 dotenv.config()
+
+  const general_rate_limit = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 min
+  limit: 100,
+  message: " Too many requests, slow down.",
+  legacyHeaders: false,
+  standardHeaders: true,
+});
+  
 
 const bootstrap = () => {
   const app = express()
 
   app.use(
     cors({
-      origin: ['http://localhost:5173', 'http://localhost:3001'],
+      origin: ['http://localhost:5173', 'http://localhost:3001' , "*" ],
       credentials: true,
     })
   )
+
+  app.use(
+    helmet({ xContentTypeOptions: false, crossOriginOpenerPolicy: true }) 
+  );
+  app.use(general_rate_limit);
 
   // Stripe webhook needs raw body BEFORE express.json() parses it
   // This must come before app.use(express.json())
