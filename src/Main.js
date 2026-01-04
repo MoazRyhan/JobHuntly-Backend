@@ -27,10 +27,10 @@ const bootstrap = () => {
     })
   )
 
-  app.use(
-    helmet({ xContentTypeOptions: false, crossOriginOpenerPolicy: true }) 
-  );
-  app.use(general_rate_limit);
+  // app.use(
+  //   helmet({ xContentTypeOptions: false, crossOriginOpenerPolicy: true }) 
+  // );
+  // app.use(general_rate_limit);
 
   // Stripe webhook needs raw body BEFORE express.json() parses it
   // This must come before app.use(express.json())
