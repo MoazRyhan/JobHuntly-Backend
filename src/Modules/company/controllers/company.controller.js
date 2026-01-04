@@ -34,7 +34,8 @@ catch(error){
 
 export const getMyCompanyJobs = async (req, res, next) => {
   try {
-    const companyId = req.login_user?._id;
+    const userId = req.login_user._id;
+
     const {
       page = 1,
       limit = 7,
@@ -45,12 +46,6 @@ export const getMyCompanyJobs = async (req, res, next) => {
       search,
     } = req.query;
 
-    if (!companyId) {
-      return res.status(403).json({
-        message: "This user is not associated with a company",
-      });
-    }
-
     const filters = {};
     if (status) filters.status = status;
     if (jobType) filters.jobType = jobType;
@@ -58,8 +53,8 @@ export const getMyCompanyJobs = async (req, res, next) => {
     if (toDate) filters.toDate = toDate;
     if (search) filters.search = search;
 
-    const jobs = await getJobsByCompanyIdService(
-      companyId,
+    const result = await getJobsByCompanyIdService(
+      userId,
       Number(page),
       Number(limit),
       filters
@@ -67,12 +62,9 @@ export const getMyCompanyJobs = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: jobs,
+      data: result,
     });
   } catch (error) {
     next(error);
   }
 };
-
-
-
