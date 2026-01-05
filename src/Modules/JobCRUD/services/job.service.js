@@ -21,11 +21,7 @@ const createJob = async (jobData, req) => {
             throw error;
         }
 
-        // Catch Mongoose validation errors (e.g., missing required fields)
-        if (error.name === 'ValidationError') throw new ApiError(400, error.message);
-
         console.error("Job Creation Internal System Error:", error);
-        throw new ApiError(500, 'Job Creation Internal Server Error');
     }
 }
 
@@ -40,11 +36,7 @@ const updateJob = async (job, updatedJob) => {
             throw error;
         }
 
-        // Catch Mongoose validation errors (e.g., missing required fields)
-        if (error.name === 'ValidationError') throw new ApiError(400, error.message);
-
         console.error("Job Updating Internal System Error:", error);
-        throw new ApiError(500, 'Job Updating Internal Server Error');
     }
 }
 
@@ -70,7 +62,6 @@ const openCloseJob = async (job) => {
         }
 
         console.error("Changing Job Liveness Internal System Error:", error);
-        throw new ApiError(500, 'Changing Job Liveness Internal Server Error');
     }
 }
 
@@ -88,7 +79,6 @@ const deleteJob = async (job) => {
         }
 
         console.error("Job Deletion Internal System Error:", error);
-        throw new ApiError(500, 'Job Deletion Internal Server Error');
     }
 }
 
