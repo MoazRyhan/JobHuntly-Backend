@@ -10,6 +10,7 @@ import jobRouter from '../Modules/JobCRUD/job.route.js'
 import skillsRouter from '../Modules/Skills/skills.route.js'
 import applicantRouter from '../Modules/applicant/applicant.route.js'
 import companyDashboardRouter from '../Modules/CompanyDashboard/companyDashboard.route.js'
+import notificationRouter from '../Modules/notification/notification.route.js'
 import AdminRouter from '../Modules/admin/admin.routes.js'
 import StripeRouter from '../Modules/Stripe/stripe.routes.js'
 
@@ -33,6 +34,7 @@ const routerHandler = async (app, express) => {
   app.use('/skills', skillsRouter)
   app.use('/jobs', jobRouter)
   app.use('/companyDashboard', companyDashboardRouter)
+  app.use('/notifications', notificationRouter)
 
   app.use('/{*any}', (req, res) => {
     res.status(404).json({ message: 'this Router is not found' })
