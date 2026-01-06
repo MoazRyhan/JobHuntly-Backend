@@ -155,7 +155,8 @@ export const COMPANY_INDUSTRIES = {
   EDUCATION:  "Education",
 
   MARKETING: "Marketing" ,
-  NON_PROFIT: "Social & Non-Profit"
+  NON_PROFIT: "Social & Non-Profit",
+  OTHER :"Other"
 }
 
 export const TECH_STACK = {
