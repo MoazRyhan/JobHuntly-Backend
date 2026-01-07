@@ -12,4 +12,6 @@ notificationRouter.get('', notificationController.getNotificationsBySeekerId)
 
 notificationRouter.patch('/:id', notificationController.readNotification)
 
+notificationRouter.patch('', notificationController.readAllNotifications)
+
 export default notificationRouter
