@@ -24,18 +24,46 @@ export const getLatestJobs = async (req, res, next) => {
 };
 
 // ============ GET ALL JOBS ============
+// ============ GET ALL JOBS ============
 export const getAllJobs = async (req, res, next) => {
     try {
-        const jobs = await JobModel.find({ isLive: true })
+        const user = req.login_user || null;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const now = new Date();
+        const query = { isLive: true };
+
+        // 1. Fetch ALL live jobs
+        let jobs = await JobModel.find(query)
             .sort({ postDate: -1 })
             .populate("companyId", "name logoUrl hqCountry")
             .populate("skillsIds", "name");
 
+        // 2. Filter in memory for guests (delay new jobs)
+        if (!user || !user.isPremium) {
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+            
+            jobs = jobs.filter(job => {
+                const jobDate = new Date(job.postDate);
+                return jobDate <= oneHourAgo;
+            });
+        }
+
+        const totalCount = jobs.length;
+        const paginatedJobs = jobs.slice(skip, skip + limit);
+
         res.status(200).json({
             success: true,
             message: "All jobs fetched successfully",
-            count: jobs.length,
-            data: jobs
+            data: paginatedJobs,
+            pagination: {
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+                currentPage: page,
+                limit
+            }
         });
     } catch (error) {
         next(error);
@@ -138,29 +166,47 @@ export const getJobById = async (req, res, next) => {
 
 
 // ============ SEARCH JOBS ============
+// ============ SEARCH JOBS ============
 export const searchJobs = async (req, res, next) => {
     try {
+        const user = req.login_user || null;
         const { title, location } = req.query;
+        const now = new Date();
+        
         let query = { isLive: true };
         if (title) {
             query.title = { $regex: title, $options: 'i' }; 
         }
-        const jobs = await JobModel.find(query)
+        
+        // 1. Fetch ALL matching jobs
+        let jobs = await JobModel.find(query)
             .sort({ postDate: -1 })
             .populate("companyId", "name logoUrl hqCountry hqCity")
             .populate("skillsIds", "name");
-        let filteredJobs = jobs;
+            
+        // 2. Filter in memory for guests (delay new jobs)
+        if (!user || !user.isPremium) {
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+            
+            jobs = jobs.filter(job => {
+                const jobDate = new Date(job.postDate);
+                return jobDate <= oneHourAgo;
+            });
+        }
+        
+        // 3. Location filter
         if (location) {
-            filteredJobs = jobs.filter(job => 
+            jobs = jobs.filter(job => 
                 job.companyId?.hqCountry?.toLowerCase().includes(location.toLowerCase()) ||
                 job.companyId?.hqCity?.toLowerCase().includes(location.toLowerCase())
             );
         }
+        
         res.status(200).json({
             success: true,
             message: "Search results",
-            count: filteredJobs.length,
-            data: filteredJobs
+            count: jobs.length,
+            data: jobs
         });
     } catch (error) {
         next(error);
@@ -170,8 +216,16 @@ export const searchJobs = async (req, res, next) => {
 
 
 // ============ FILTER JOBS ============
+// ============ FILTER JOBS ============
 export const filterJobs = async (req, res, next) => {
     try {
+        const user = req.login_user || null;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const now = new Date();
+
         const { 
             title,            
             location,         
@@ -182,6 +236,7 @@ export const filterJobs = async (req, res, next) => {
         } = req.query;
         
         let query = { isLive: true };
+
         if (title) {
             query.title = { $regex: title, $options: 'i' };
         }
@@ -197,21 +252,44 @@ export const filterJobs = async (req, res, next) => {
         if (salaryMax) {
             query.salaryMax = { $lte: Number(salaryMax) };
         }
+
+        // 1. Fetch ALL matching jobs
         let jobs = await JobModel.find(query)
             .sort({ postDate: -1 })
             .populate("companyId", "name logoUrl hqCountry hqCity")
             .populate("skillsIds", "name");
+
+        // 2. Filter in memory for guests (delay new jobs)
+        if (!user || !user.isPremium) {
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+            
+            jobs = jobs.filter(job => {
+                const jobDate = new Date(job.postDate);
+                return jobDate <= oneHourAgo;
+            });
+        }
+
+        // 3. Location filter
         if (location) {
             jobs = jobs.filter(job => 
                 job.companyId?.hqCountry?.toLowerCase().includes(location.toLowerCase()) ||
                 job.companyId?.hqCity?.toLowerCase().includes(location.toLowerCase())
             );
         }
+
+        const totalCount = jobs.length;
+        const paginatedJobs = jobs.slice(skip, skip + limit);
+
         res.status(200).json({
             success: true,
             message: "Filtered jobs",
-            count: jobs.length,
-            data: jobs
+            data: paginatedJobs,
+            pagination: {
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+                currentPage: page,
+                limit
+            }
         });
     } catch (error) {
         next(error);
@@ -224,7 +302,15 @@ export const filterJobs = async (req, res, next) => {
 // ============ GET ALL COMPANIES ============
 export const getAllCompanies = async (req, res, next) => {
     try {
-        const companies = await CompanyModel.find({ isVerified: true });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const [companies, totalCount] = await Promise.all([
+            CompanyModel.find().skip(skip).limit(limit),
+            CompanyModel.countDocuments()
+        ]);
+
         const companiesWithJobCount = await Promise.all(
             companies.map(async (company) => {
                 const jobCount = await JobModel.countDocuments({ 
@@ -237,11 +323,17 @@ export const getAllCompanies = async (req, res, next) => {
                 };
             })
         );
+
         res.status(200).json({
             success: true,
             message: "Companies fetched successfully",
-            count: companiesWithJobCount.length,
-            data: companiesWithJobCount
+            data: companiesWithJobCount,
+            pagination: {
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+                currentPage: page,
+                limit
+            }
         });
     } catch (error) {
         next(error);
@@ -251,15 +343,27 @@ export const getAllCompanies = async (req, res, next) => {
 // ============ FILTER COMPANIES ============
 export const filterCompanies = async (req, res, next) => {
     try {
-        const { industry, companySize, name } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const { industry, companySize, name, location } = req.query;
         
-        let query = { isVerified: true };
+        let query = {};
         if (name) {
             query.name = { $regex: name, $options: 'i' };
         }
         if (industry) {
             query.industry = { $regex: industry, $options: 'i' };
         }
+        // Add location filter
+        if (location) {
+            query.$or = [
+                { hqCountry: { $regex: location, $options: 'i' } },
+                { hqCity: { $regex: location, $options: 'i' } }
+            ];
+        }
+
         const companies = await CompanyModel.find(query);
         let companiesWithJobCount = await Promise.all(
             companies.map(async (company) => {
@@ -273,6 +377,8 @@ export const filterCompanies = async (req, res, next) => {
                 };
             })
         );
+
+        // Filter by company size in memory (since it needs string matching)
         if (companySize) {
             companiesWithJobCount = companiesWithJobCount.filter(company => {
                 const range = company.employeesRange;
@@ -296,11 +402,21 @@ export const filterCompanies = async (req, res, next) => {
                 }
             });
         }
+
+        // Apply pagination after all filtering
+        const totalCount = companiesWithJobCount.length;
+        const paginatedCompanies = companiesWithJobCount.slice(skip, skip + limit);
+
         res.status(200).json({
             success: true,
             message: "Filtered companies",
-            count: companiesWithJobCount.length,
-            data: companiesWithJobCount
+            data: paginatedCompanies,
+            pagination: {
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+                currentPage: page,
+                limit
+            }
         });
     } catch (error) {
         next(error);
