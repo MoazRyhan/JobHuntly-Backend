@@ -2,7 +2,7 @@ import { Router } from "express";
 import * as authController from "./controllers/auth.controller.js"
 import validate from "../../Middlewares/validate.js";
 import { registerSchema , loginSchema } from "./validators/auth.validator.js";
-import { AuthenticationMiddleware} from '../../Middlewares/AuthenticationMiddleware.js';
+import { AuthenticationMiddleware, OptionalAuthenticationMiddleware} from '../../Middlewares/AuthenticationMiddleware.js';
 import { forgotPassword,resetPassword } from "./controllers/forgotPassword.controller.js";
 
 const AuthRouter = Router();
@@ -15,6 +15,17 @@ AuthRouter.post("/refresh", authController.refresh);
 AuthRouter.get(
   "/me",
   AuthenticationMiddleware(),
+  (req, res) => {
+    res.status(200).json({
+      success: true,
+      user: req.login_user,
+    });
+  }
+);
+
+AuthRouter.get(
+  "/guest",
+  OptionalAuthenticationMiddleware(),
   (req, res) => {
     res.status(200).json({
       success: true,
