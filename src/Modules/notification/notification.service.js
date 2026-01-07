@@ -5,7 +5,7 @@ const getNotificationsBySeekerId = async (userId) => {
         const notifications = await NotificationModel.find({
             recipientId: userId
         }).sort({ createdAt: -1 }).limit(10);
-        
+
         return notifications
 
     } catch (error) {
@@ -26,7 +26,7 @@ const readNotification = async (notificationId) => {
         );
 
         if (!updatedNotification)
-            console.error("Reading Notification Internal System Error:", error);
+            console.error("Reading a Notification Internal System Error:", error);
         else
             return true
 
@@ -35,11 +35,35 @@ const readNotification = async (notificationId) => {
             throw error;
         }
 
-        console.error("Getting Notifications Internal System Error:", error);
+        console.error("Reading a Notification Internal System Error:", error);
+    }
+}
+
+const readAllNotifications = async (recipientId) => {
+    try {
+        const result = await NotificationModel.updateMany(
+            { recipientId: recipientId, isRead: false }, // Only update unread ones
+            { $set: { isRead: true } }
+        );
+
+        // result contains info like: { acknowledged: true, modifiedCount: 5 }
+        if (result.acknowledged) {
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error("Reading All Notifications Internal System Error:", error);
+        
+        if (error.statusCode) {
+            throw error;
+        }
+        return false;
     }
 }
 
 export default {
     getNotificationsBySeekerId,
-    readNotification
+    readNotification,
+    readAllNotifications
 }

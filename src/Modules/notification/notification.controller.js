@@ -24,7 +24,19 @@ const readNotification = asyncHandler(async (req, res) => {
     return response(res, result)
 })
 
+const readAllNotifications = asyncHandler(async (req, res) => {
+    const recipientId = req.login_user._id
+
+    if (!recipientId)
+        console.error("User not logged in")
+
+    const result = await notificationService.readAllNotifications(recipientId)
+
+    return response(res, result)
+})
+
 export default {
     getNotificationsBySeekerId,
-    readNotification
+    readNotification,
+    readAllNotifications
 }
