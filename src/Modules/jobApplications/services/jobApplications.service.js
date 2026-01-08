@@ -14,7 +14,8 @@ export const getAllJobApplicationsService = async (filter = {}) => {
 export const getJobApplicationService = async (applicationId, req) => {
   const jobApplication = await JobApplicationModel.findById(applicationId)
     .populate('jobId')
-    .populate('seekerId') // referencing User, not Job Seeker
+    .populate('seekerId') // referencing User, not Job Seeker  NOT I CORRECTED THE REFs
+    .populate('userId')
 
   if (!jobApplication) {
     throw new ApiError(404, 'Job Application Not Found')
@@ -24,27 +25,27 @@ export const getJobApplicationService = async (applicationId, req) => {
     jobApplication.isReviewed = true
     jobApplication.timeOfReview = Date.now()
 
-    const company = await CompanyModel.findById(jobApplication.jobId.companyId).select('name');
-    const companyName = company.name;
+    const company = await CompanyModel.findById(
+      jobApplication.jobId.companyId
+    ).select('name')
+    const companyName = company.name
 
-    const notification = await NotificationModel.create(
-      {
-        recipientId: jobApplication.seekerId._id,
-        message: `Your application for "${jobApplication.jobId.title}" has been reviewed by "${companyName}"!`,
-        link: "/Dashboard/my-applications"
-      }
-    )
+    const notification = await NotificationModel.create({
+      recipientId: jobApplication.seekerId._id,
+      message: `Your application for "${jobApplication.jobId.title}" has been reviewed by "${companyName}"!`,
+      link: '/Dashboard/my-applications',
+    })
 
     jobApplication.save()
 
     // Access io and activeUsers from the app instance
-    const io = req.app.get("io");
-    const activeUsers = req.app.get("activeUsers");
+    const io = req.app.get('io')
+    const activeUsers = req.app.get('activeUsers')
 
-    const seekerSocketId = activeUsers[jobApplication.seekerId._id.toString()];
+    const seekerSocketId = activeUsers[jobApplication.seekerId._id.toString()]
 
     if (seekerSocketId) {
-      io.to(seekerSocketId).emit("notification_received", notification);
+      io.to(seekerSocketId).emit('notification_received', notification)
     }
   }
 
