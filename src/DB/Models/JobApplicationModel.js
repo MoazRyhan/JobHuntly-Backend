@@ -1,10 +1,19 @@
-import mongoose from "mongoose";
-import { ANSWER_TYPE } from "../../Constants/constants.js";
+import mongoose from 'mongoose'
+import { ANSWER_TYPE } from '../../Constants/constants.js'
 
 const JobApplicationSchema = new mongoose.Schema(
   {
-    jobId: { type: mongoose.Schema.Types.ObjectId, ref: "Job", required: true },
-    seekerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    seekerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'JobSeeker',
+      required: true,
+    },
 
     appliedAt: { type: Date, default: Date.now },
 
@@ -13,7 +22,7 @@ const JobApplicationSchema = new mongoose.Schema(
     // When company user opens a job application, it got reviewed (true)
     isReviewed: {
       type: Boolean,
-      default: false
+      default: false,
     },
     timeOfReview: Date,
 
@@ -34,20 +43,24 @@ const JobApplicationSchema = new mongoose.Schema(
         questionId: { type: mongoose.Schema.Types.ObjectId }, // Link to original question
         questionText: { type: String, required: true }, // SNAPSHOT: Stores the question at moment of applying
         type: { type: String, required: true }, // SNAPSHOT: Stores the type (YES/NO, TEXT)
-        answerValue: { type: mongoose.Schema.Types.Mixed, required: true } // The actual answer
-      }
+        answerValue: { type: mongoose.Schema.Types.Mixed, required: true }, // The actual answer
+      },
     ],
   },
   { timestamps: true }
-);
+)
 
 // The seeker should be able to apply to the job 'Only Once'
 // Composite Primary Key
-JobApplicationSchema.index({
-  jobId: 1,
-  seekerId: 1
-}, { unique: true })
+JobApplicationSchema.index(
+  {
+    jobId: 1,
+    seekerId: 1,
+  },
+  { unique: true }
+)
 
 const JobApplicationModel =
-  mongoose.models.JobApplication || mongoose.model("JobApplication", JobApplicationSchema);
-export default JobApplicationModel;
+  mongoose.models.JobApplication ||
+  mongoose.model('JobApplication', JobApplicationSchema)
+export default JobApplicationModel
