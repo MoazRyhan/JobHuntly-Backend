@@ -1,15 +1,16 @@
 import JobModel from '../../../DB/Models/JobModel.js'
 import JobApplicationModel from '../../../DB/Models/JobApplicationModel.js'
+import JobSeekerModel from '../../../DB/Models/JobSeekerModel.js'
 import mongoose from 'mongoose'
 import ApiError from '../../../Utils/ApiError.utils.js'
 import JobAnalyticsModel from '../../../DB/Models/JobAnalyticsModel.js'
 
 export const getAllJobsService = async (user = null) => {
   const now = new Date()
-  
+
   // 1. Fetch ALL live jobs query
   const query = { isLive: true }
-  
+
   let jobs = await JobModel.find(query)
     .populate('companyId')
     .sort({ postDate: -1 })
@@ -17,8 +18,8 @@ export const getAllJobsService = async (user = null) => {
   // 2. Filter in memory for guests (delay new jobs)
   if (!user || !user.isPremium) {
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
-    
-    jobs = jobs.filter(job => {
+
+    jobs = jobs.filter((job) => {
       // Ensure we compare Date objects
       const jobDate = new Date(job.postDate)
       return jobDate <= oneHourAgo
@@ -78,7 +79,10 @@ export const createJobApplicationService = async ({
   if (!mongoose.Types.ObjectId.isValid(jobId)) {
     throw new ApiError(404, 'Invalid jobId or seekerId')
   }
-  const seekerId = user._id
+  const userId = user._id
+
+  // find the job seeker data by user id
+  const jobSeeker = await JobSeekerModel.findOne({ userId })
 
   // 1. Check if Job exists and fetch questions
   const job = await JobModel.findById(jobId)
@@ -87,7 +91,7 @@ export const createJobApplicationService = async ({
   }
 
   // 2. Prevent duplicate application
-  const exists = await JobApplicationModel.findOne({ jobId, seekerId })
+  const exists = await JobApplicationModel.findOne({ jobId, userId })
   if (exists) {
     throw new ApiError(409, 'You have already applied to this job')
   }
@@ -126,15 +130,14 @@ export const createJobApplicationService = async ({
 
   const application = await JobApplicationModel.create({
     jobId,
-    seekerId,
+    userId,
+    seekerId: jobSeeker._id,
 
     // from authenticated user
     fullName: user.fullName,
     email: user.email,
     phone: user.phone,
     currentJobTitle: user.currentJobTitle,
-    linkedinUrl: user.linkedinUrl,
-    portfolioUrl: user.portfolioUrl,
 
     // taken from the user request
     resumeUrl,
