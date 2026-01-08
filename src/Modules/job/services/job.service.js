@@ -178,3 +178,8 @@ export const getSimilarJobsByCategoryService = async (
 
   return similarJobs
 }
+
+export const getJobSeekerIdByUserId = async (userId) => {
+  const jobSeeker = await JobSeekerModel.findOne({ userId })
+  return jobSeeker?._id || null
+}
