@@ -4,7 +4,7 @@ import { AuthenticationMiddleware,AuthorizationMiddleware } from '../../Middlewa
 
 const router=Router();
 
-router.get("/:companyId",AuthenticationMiddleware(), getCompanyById);
+router.get("/:companyId",getCompanyById);
 
 router.post("/", createCompany);
 
