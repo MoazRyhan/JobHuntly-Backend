@@ -44,6 +44,7 @@ export const getMyCompanyJobs = async (req, res, next) => {
       fromDate,
       toDate,
       search,
+      workplaceModel,
     } = req.query;
 
     const filters = {};
@@ -52,6 +53,7 @@ export const getMyCompanyJobs = async (req, res, next) => {
     if (fromDate) filters.fromDate = fromDate;
     if (toDate) filters.toDate = toDate;
     if (search) filters.search = search;
+    if (workplaceModel) filters.workplaceModel = workplaceModel;
 
     const result = await getJobsByCompanyIdService(
       userId,
