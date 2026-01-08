@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { OptionalAuthenticationMiddleware } from '../../Middlewares/AuthenticationMiddleware.js';
-import { getLatestJobs, getAllJobs, getCategories, getCompaniesWeHelped , getJobById , searchJobs ,    filterJobs,  getAllCompanies, filterCompanies, getCompanyById} from "./controllers/job.controller.js";
+import { getLatestJobs, getAllJobs, getCategories, getCompaniesWeHelped, getJobById, searchJobs, filterJobs, getAllCompanies, filterCompanies, getCompanyById } from "./controllers/job.controller.js";
 
 const MahmoudRouter = Router();
 
@@ -10,8 +10,8 @@ MahmoudRouter.get("/jobs", OptionalAuthenticationMiddleware(), getAllJobs);
 MahmoudRouter.get("/jobs/:id", getJobById);
 
 // Search API
-MahmoudRouter.get("/search", searchJobs); 
-MahmoudRouter.get("/filter", OptionalAuthenticationMiddleware(), filterJobs); 
+MahmoudRouter.get("/search", searchJobs);
+MahmoudRouter.get("/filter", OptionalAuthenticationMiddleware(), filterJobs);
 
 // Categories API
 MahmoudRouter.get("/categories", getCategories);

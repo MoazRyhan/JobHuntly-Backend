@@ -8,8 +8,8 @@ import SkillModel from "../../../DB/Models/SkillsModel.js";
 export const getLatestJobs = async (req, res, next) => {
     try {
         const latestJobs = await JobModel.find({ isLive: true })
-            .sort({ postDate: -1 })  
-            .limit(8)                 
+            .sort({ createdAt: -1 })
+            .limit(8)
             .populate("companyId", "name logoUrl hqCountry")
             .populate("skillsIds", "name");
 
@@ -24,7 +24,6 @@ export const getLatestJobs = async (req, res, next) => {
 };
 
 // ============ GET ALL JOBS ============
-// ============ GET ALL JOBS ============
 export const getAllJobs = async (req, res, next) => {
     try {
         const user = req.login_user || null;
@@ -33,20 +32,23 @@ export const getAllJobs = async (req, res, next) => {
         const skip = (page - 1) * limit;
 
         const now = new Date();
-        const query = { isLive: true };
+        const query = {
+            isLive: true,
+            dueDate: { $gt: now }
+        };
 
         // 1. Fetch ALL live jobs
         let jobs = await JobModel.find(query)
-            .sort({ postDate: -1 })
-            .populate("companyId", "name logoUrl hqCountry")
+            .sort({ createdAt: -1 })
+            .populate("companyId", "name logoUrl hqCountry hqCity")
             .populate("skillsIds", "name");
 
         // 2. Filter in memory for guests (delay new jobs)
         if (!user || !user.isPremium) {
             const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-            
+
             jobs = jobs.filter(job => {
-                const jobDate = new Date(job.postDate);
+                const jobDate = new Date(job.createdAt);
                 return jobDate <= oneHourAgo;
             });
         }
@@ -73,12 +75,12 @@ export const getAllJobs = async (req, res, next) => {
 // ============ GET CATEGORIES ============
 export const getCategories = async (req, res, next) => {
     try {
-        
+
         const categoriesWithCount = await Promise.all(
             jobCategoryValues.map(async (category) => {
-                const count = await JobModel.countDocuments({ 
+                const count = await JobModel.countDocuments({
                     categories: category,
-                    isLive: true 
+                    isLive: true
                 });
                 return {
                     name: category,
@@ -121,7 +123,7 @@ export const getCompaniesWeHelped = async (req, res, next) => {
 export const getJobById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         const job = await JobModel.findById(id)
             .populate("companyId", "name logoUrl hqCountry hqCity website")
             .populate("skillsIds", "name");
@@ -138,7 +140,8 @@ export const getJobById = async (req, res, next) => {
             image: job.companyId?.logoUrl,
             company: job.companyId?.name,
             location: job.companyId?.hqCountry,
-            employment_type: job.employmentTypes?.join(", "),
+            employment_type: job.employmentType,
+            workplaceModel: job.workplaceModel,
             description: job.description,
             job_needs: [
                 { responsibilities: job.responsibilities },
@@ -147,8 +150,8 @@ export const getJobById = async (req, res, next) => {
             ],
             about_this_role: {
                 apply_before: job.dueDate ? new Date(job.dueDate).toLocaleDateString() : "N/A",
-                job_posted_on: new Date(job.postDate).toLocaleDateString(),
-                job_type: job.employmentTypes?.join(", "),
+                job_posted_on: new Date(job.createdAt).toLocaleDateString(),
+                job_type: job.employmentType,
                 salary: `${job.salaryMin} - ${job.salaryMax} ${job.salaryCurrency}`
             },
             categories: job.categories,
@@ -166,42 +169,41 @@ export const getJobById = async (req, res, next) => {
 
 
 // ============ SEARCH JOBS ============
-// ============ SEARCH JOBS ============
 export const searchJobs = async (req, res, next) => {
     try {
         const user = req.login_user || null;
         const { title, location } = req.query;
         const now = new Date();
-        
+
         let query = { isLive: true };
         if (title) {
-            query.title = { $regex: title, $options: 'i' }; 
+            query.title = { $regex: title, $options: 'i' };
         }
-        
+
         // 1. Fetch ALL matching jobs
         let jobs = await JobModel.find(query)
-            .sort({ postDate: -1 })
+            .sort({ createdAt: -1 })
             .populate("companyId", "name logoUrl hqCountry hqCity")
             .populate("skillsIds", "name");
-            
+
         // 2. Filter in memory for guests (delay new jobs)
         if (!user || !user.isPremium) {
             const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-            
+
             jobs = jobs.filter(job => {
-                const jobDate = new Date(job.postDate);
+                const jobDate = new Date(job.createdAt);
                 return jobDate <= oneHourAgo;
             });
         }
-        
+
         // 3. Location filter
         if (location) {
-            jobs = jobs.filter(job => 
+            jobs = jobs.filter(job =>
                 job.companyId?.hqCountry?.toLowerCase().includes(location.toLowerCase()) ||
                 job.companyId?.hqCity?.toLowerCase().includes(location.toLowerCase())
             );
         }
-        
+
         res.status(200).json({
             success: true,
             message: "Search results",
@@ -216,7 +218,6 @@ export const searchJobs = async (req, res, next) => {
 
 
 // ============ FILTER JOBS ============
-// ============ FILTER JOBS ============
 export const filterJobs = async (req, res, next) => {
     try {
         const user = req.login_user || null;
@@ -226,25 +227,38 @@ export const filterJobs = async (req, res, next) => {
 
         const now = new Date();
 
-        const { 
-            title,            
-            location,         
-            employmentType,   
-            category,         
-            salaryMin,       
-            salaryMax,        
+        const {
+            title,
+            location,
+            employmentType,
+            workplaceModel,
+            category,
+            salaryMin,
+            salaryMax,
         } = req.query;
-        
-        let query = { isLive: true };
+
+        let query = {
+            isLive: true,
+            dueDate: { $gt: now }
+        };
 
         if (title) {
             query.title = { $regex: title, $options: 'i' };
         }
         if (employmentType) {
-            query.employmentTypes = { $in: [employmentType] };
+            const employmentTypeArray = employmentType.split(',');
+
+            query.employmentType = { $in: employmentTypeArray };
+        }
+        if (workplaceModel) {
+            const workplaceModelArray = workplaceModel.split(',');
+
+            query.workplaceModel = { $in: workplaceModelArray };
         }
         if (category) {
-            query.categories = { $in: [category] };
+            const categoryArray = category.split(',');
+
+            query.categories = { $in: categoryArray };
         }
         if (salaryMin) {
             query.salaryMin = { $gte: Number(salaryMin) };
@@ -255,23 +269,23 @@ export const filterJobs = async (req, res, next) => {
 
         // 1. Fetch ALL matching jobs
         let jobs = await JobModel.find(query)
-            .sort({ postDate: -1 })
+            .sort({ createdAt: -1 })
             .populate("companyId", "name logoUrl hqCountry hqCity")
             .populate("skillsIds", "name");
 
         // 2. Filter in memory for guests (delay new jobs)
         if (!user || !user.isPremium) {
             const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-            
+
             jobs = jobs.filter(job => {
-                const jobDate = new Date(job.postDate);
+                const jobDate = new Date(job.createdAt);
                 return jobDate <= oneHourAgo;
             });
         }
 
         // 3. Location filter
         if (location) {
-            jobs = jobs.filter(job => 
+            jobs = jobs.filter(job =>
                 job.companyId?.hqCountry?.toLowerCase().includes(location.toLowerCase()) ||
                 job.companyId?.hqCity?.toLowerCase().includes(location.toLowerCase())
             );
@@ -313,9 +327,9 @@ export const getAllCompanies = async (req, res, next) => {
 
         const companiesWithJobCount = await Promise.all(
             companies.map(async (company) => {
-                const jobCount = await JobModel.countDocuments({ 
+                const jobCount = await JobModel.countDocuments({
                     companyId: company._id,
-                    isLive: true 
+                    isLive: true
                 });
                 return {
                     ...company.toObject(),
@@ -348,7 +362,7 @@ export const filterCompanies = async (req, res, next) => {
         const skip = (page - 1) * limit;
 
         const { industry, companySize, name, location } = req.query;
-        
+
         let query = {};
         if (name) {
             query.name = { $regex: name, $options: 'i' };
@@ -367,9 +381,9 @@ export const filterCompanies = async (req, res, next) => {
         const companies = await CompanyModel.find(query);
         let companiesWithJobCount = await Promise.all(
             companies.map(async (company) => {
-                const jobCount = await JobModel.countDocuments({ 
+                const jobCount = await JobModel.countDocuments({
                     companyId: company._id,
-                    isLive: true 
+                    isLive: true
                 });
                 return {
                     ...company.toObject(),
@@ -383,8 +397,8 @@ export const filterCompanies = async (req, res, next) => {
             companiesWithJobCount = companiesWithJobCount.filter(company => {
                 const range = company.employeesRange;
                 if (!range) return false;
-                
-                switch(companySize) {
+
+                switch (companySize) {
                     case '1-50':
                         return range === '1-50' || range.includes('1-50');
                     case '51-150':
@@ -429,7 +443,7 @@ export const filterCompanies = async (req, res, next) => {
 export const getCompanyById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         const company = await CompanyModel.findById(id);
 
         if (!company) {
@@ -445,7 +459,7 @@ export const getCompanyById = async (req, res, next) => {
         let linkedin = '';
         let facebook = '';
         let twitter = '';
-        
+
         if (company.links && company.links.length > 0) {
             company.links.forEach(link => {
                 if (link.type === 'LINKEDIN') linkedin = link.value;
@@ -457,7 +471,7 @@ export const getCompanyById = async (req, res, next) => {
         const formattedCompany = {
             id: company._id,
             name: company.name,
-            logo: company.logoUrl,  
+            logo: company.logoUrl,
             website: company.website || '',
             industry: company.industry || '',
             about: company.about || '',
