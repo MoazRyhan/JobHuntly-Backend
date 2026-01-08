@@ -59,13 +59,16 @@ export const getJobsByCompanyIdService = async (
   if (filters.status === "closed") {
     query.isLive = false;
   }
+  if (filters.workplaceModel) {
+  query.workplaceModel = filters.workplaceModel;
+  }
 
   console.log("Final Job Query:", query);
 
   const totalJobs = await JobModel.countDocuments(query);
 
   const jobs = await JobModel.find(query)
-    .select("title employmentType dueDate isLive createdAt")
+    .select("title employmentType  workplaceModel dueDate isLive createdAt")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -86,6 +89,7 @@ export const getJobsByCompanyIdService = async (
         _id: job._id,
         title: job.title,
         jobType: job.employmentType,
+        workplaceModel: job.workplaceModel,
         status,
         dueDate: job.dueDate,
         createdAt: job.createdAt,
