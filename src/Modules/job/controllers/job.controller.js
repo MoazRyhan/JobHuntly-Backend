@@ -17,7 +17,14 @@ export const getAllJobs = asyncHandler(async (req, res) => {
 })
 
 export const getJobById = asyncHandler(async (req, res) => {
-  const seekerId = req.login_user?._id || null
+  let seekerId = null
+  
+  // If user is logged in, get their seekerId from JobSeekerModel
+  if (req.login_user?._id) {
+    const { getJobSeekerIdByUserId } = await import('../services/job.service.js')
+    seekerId = await getJobSeekerIdByUserId(req.login_user._id)
+  }
+  
   const job = await getJobService(req.params.id, seekerId)
 
   res.status(200).json({
