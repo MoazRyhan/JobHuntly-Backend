@@ -189,3 +189,47 @@ export const getRecentActivity = asyncHandler(async (req, res) => {
     data: activities.slice(0, 10),
   });
 });
+
+export const getCompanyJobs = asyncHandler(async (req, res) => {
+  const { companyId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const [jobs, totalCount] = await Promise.all([
+    JobModel.find({ companyId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    JobModel.countDocuments({ companyId }),
+  ]);
+
+  const jobsWithApplicantsCount = await Promise.all(
+    jobs.map(async (job) => {
+      const applicantsCount = await JobApplicationModel.countDocuments({
+        jobId: job._id,
+      });
+
+      return {
+        _id: job._id,
+        title: job.title,
+        jobType: job.employmentType,
+        status: job.isLive ? 'live' : 'closed',
+        dueDate: job.dueDate,
+        createdAt: job.createdAt,
+        applicantsCount,
+      };
+    })
+  );
+
+  res.status(200).json({
+    success: true,
+    data: {
+      data: jobsWithApplicantsCount,
+      total: totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      page,
+      limit,
+    },
+  });
+});
