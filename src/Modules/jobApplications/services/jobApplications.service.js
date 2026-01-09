@@ -14,14 +14,14 @@ export const getAllJobApplicationsService = async (filter = {}) => {
 export const getJobApplicationService = async (applicationId, req) => {
   const jobApplication = await JobApplicationModel.findById(applicationId)
     .populate('jobId')
-    .populate('seekerId') // referencing User, not Job Seeker  NOT I CORRECTED THE REFs
+    .populate('seekerId')
     .populate('userId')
 
   if (!jobApplication) {
     throw new ApiError(404, 'Job Application Not Found')
   }
-
-  if (jobApplication.isReviewed) {
+  
+  if (!jobApplication.isReviewed) {
     jobApplication.isReviewed = true
     jobApplication.timeOfReview = Date.now()
 
@@ -31,7 +31,7 @@ export const getJobApplicationService = async (applicationId, req) => {
     const companyName = company.name
 
     const notification = await NotificationModel.create({
-      recipientId: jobApplication.seekerId._id,
+      recipientId: jobApplication.userId._id,
       message: `Your application for "${jobApplication.jobId.title}" has been reviewed by "${companyName}"!`,
       link: '/Dashboard/my-applications',
     })
@@ -42,7 +42,7 @@ export const getJobApplicationService = async (applicationId, req) => {
     const io = req.app.get('io')
     const activeUsers = req.app.get('activeUsers')
 
-    const seekerSocketId = activeUsers[jobApplication.seekerId._id.toString()]
+    const seekerSocketId = activeUsers[jobApplication.userId._id.toString()]
 
     if (seekerSocketId) {
       io.to(seekerSocketId).emit('notification_received', notification)
