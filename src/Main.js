@@ -25,7 +25,7 @@ const bootstrap = () => {
   // for connection with front end 
   app.use(
     cors({
-      origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_ADMIN  ],
+      origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_ADMIN  , "*" ],
       credentials: true,
     })
   )
@@ -72,7 +72,7 @@ const bootstrap = () => {
   // Initialize Socket.io
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: process.env.FRONTEND_URL,
       credentials: true,
     },
   });
