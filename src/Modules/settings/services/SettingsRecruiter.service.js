@@ -2,7 +2,7 @@ import UserModel from "../../../DB/Models/UserModel.js";
 import ApiError from "../../../Utils/ApiError.utils.js";
 import CompanyModel from "../../../DB/Models/CompanyModel.js";
 import bcrypt ,{ compareSync, hashSync } from "bcrypt";
-import { TECH_STACK } from "../../../Constants/constants.js";
+import { SYSTEM_ROLE, TECH_STACK } from "../../../Constants/constants.js";
 
 
 
@@ -133,37 +133,83 @@ export const getCompanyProfile = async (userId) => {
 };
 
 
+export const uploadCompanyImages = async ({
+  files,
+  req,
+  role,
+  userId,
+}) => {
+  if (!files || files.length === 0) {
+    throw new ApiError(400, "No files uploaded")
+  }
+
+  if (role !== SYSTEM_ROLE.COMPANY) {
+    throw new ApiError(403, "Only companies can upload company images")
+  }
+
+  const company = await CompanyModel.findOne({ userId })
+  if (!company) {
+    throw new ApiError(404, "Company profile not found")
+  }
+
+  const uploadedImages = []
+
+  for (const file of files) {
+    const fileUrl = `${req.protocol}://${req.get("host")}/assets/CompanyImages/${file.filename}`
+
+    company.images.push({ src: fileUrl })
+    uploadedImages.push({ src: fileUrl })
+  }
+
+  await company.save()
+
+  return {
+    message: "Company images uploaded successfully",
+    images: uploadedImages,
+  }
+}
+
+
+
+export const removeCompanyImage = async ({
+  imageUrl,
+  role,
+  userId,
+}) => {
+  if (!imageUrl) {
+    throw new ApiError(400, "Image URL is required")
+  }
+
+  /* ================= ROLE BASED DELETE ================= */
+
+  if (role !== SYSTEM_ROLE.COMPANY) {
+    throw new ApiError(403, "Only companies can remove company images")
+  }
+
+  const company = await CompanyModel.findOne({ userId })
+
+  if (!company) {
+    throw new ApiError(404, "Company profile not found")
+  }
+
+  // remove image by src
+  company.images = company.images.filter(
+    (img) => img.src !== imageUrl
+  )
+
+  await company.save()
+
+  return {
+    message: "Image removed successfully",
+    images: company.images,
+  }
+}
 
 
 
 /* 
 
 ==================================================== recruiter =============================
-
-    // Fetch skills
-    useEffect(() => {
-        const fetchSkills = async () => {
-            const skillsResponse = await getSkills();
-
-            const skillsArray = skillsResponse.data.data || skillsResponse.data;
-
-            const formattedSkills = skillsArray.map((skill: { _id: string; name: string }) => ({
-                value: skill._id,  // MongoDB ID
-                label: skill.name  // Skill Name
-            }));
-
-            setSkillsOptions(formattedSkills);
-
-        };
-        toast.promise(fetchSkills(), {
-            error: (err) => {
-                const errorMessage = err.response?.data?.error || "Failed to fetch skills";
-                return `${errorMessage}`;
-            }
-        }
-        );
-    }, []);
-
 
 
 🏢 COMPANY (عام)

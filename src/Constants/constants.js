@@ -161,38 +161,38 @@ export const COMPANY_INDUSTRIES = {
 
 export const TECH_STACK = {
   /* ===== FRONTEND ===== */
-  HTML: "/public/images/tech/html.png",
-  CSS: "/public/images/tech/css.png",
-  JAVASCRIPT: "/public/images/tech/javascript.png",
-  TYPESCRIPT: "/public/images/tech/typescript.png",
-  REACT: "/public/images/tech/react.png",
-  NEXTJS: "/public/images/tech/nextjs.png",
-  VUE: "/public/images/tech/vue.png",
+  HTML: "https://cdn.simpleicons.org/html5",
+  CSS: "https://cdn.simpleicons.org/css3",
+  JAVASCRIPT: "https://cdn.simpleicons.org/javascript",
+  TYPESCRIPT: "https://cdn.simpleicons.org/typescript",
+  REACT: "https://cdn.simpleicons.org/react",
+  NEXTJS: "https://cdn.simpleicons.org/nextdotjs",
+  VUE: "https://cdn.simpleicons.org/vuedotjs",
 
   /* ===== BACKEND ===== */
-  NODEJS: "/public/images/tech/node.png",
-  EXPRESS: "/public/images/tech/express.png",
-  NESTJS: "/public/images/tech/nestjs.png",
-  DJANGO: "/public/images/tech/django.png",
-  RUBY: "/public/images/tech/ruby.png",
+  NODEJS: "https://cdn.simpleicons.org/nodedotjs",
+  EXPRESS: "https://cdn.simpleicons.org/express",
+  NESTJS: "https://cdn.simpleicons.org/nestjs",
+  DJANGO: "https://cdn.simpleicons.org/django",
+  RUBY: "https://cdn.simpleicons.org/ruby",
 
   /* ===== DATABASE ===== */
-  MONGODB: "/public/images/tech/mongodb.png",
-  POSTGRES: "/public/images/tech/postgres.png",
-  MYSQL: "/public/images/tech/mysql.png",
-  REDIS: "/public/images/tech/redis.png",
+  MONGODB: "https://cdn.simpleicons.org/mongodb",
+  POSTGRES: "https://cdn.simpleicons.org/postgresql",
+  MYSQL: "https://cdn.simpleicons.org/mysql",
+  REDIS: "https://cdn.simpleicons.org/redis",
 
   /* ===== DEVOPS / CLOUD ===== */
-  DOCKER: "/public/images/tech/docker.png",
-  KUBERNETES: "/public/images/tech/kubernetes.png",
-  AWS: "/public/images/tech/aws.png",
-  GCP: "/public/images/tech/gcp.png",
+  DOCKER: "https://cdn.simpleicons.org/docker",
+  KUBERNETES: "https://cdn.simpleicons.org/kubernetes",
+  AWS: "https://cdn.simpleicons.org/amazonaws",
+  GCP: "https://cdn.simpleicons.org/googlecloud",
 
   /* ===== ANALYTICS / DESIGN ===== */
-  MIXPANEL: "/public/images/tech/mixpanel.png",
-  GOOGLE_ANALYTICS: "/public/images/tech/ga.png",
-  FRAMER: "/public/images/tech/framer.png",
-  FIGMA: "/public/images/tech/figma.png",
+  MIXPANEL: "https://cdn.simpleicons.org/mixpanel",
+  GOOGLE_ANALYTICS: "https://cdn.simpleicons.org/googleanalytics",
+  FRAMER: "https://cdn.simpleicons.org/framer",
+  FIGMA: "https://cdn.simpleicons.org/figma",
 };
 
 
