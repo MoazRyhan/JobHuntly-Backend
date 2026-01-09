@@ -7,10 +7,11 @@ import SkillModel from "../../../DB/Models/SkillsModel.js";
 // ============ GET LATEST JOBS ============
 export const getLatestJobs = async (req, res, next) => {
     try {
-        const latestJobs = await JobModel.find({ isLive: true })
+        const now = new Date()
+        const latestJobs = await JobModel.find({ isLive: true, dueDate: { $gt: now } })
             .sort({ createdAt: -1 })
             .limit(8)
-            .populate("companyId", "name logoUrl hqCountry")
+            .populate("companyId", "name logoUrl hqCountry hqCity")
             .populate("skillsIds", "name");
 
         res.status(200).json({
