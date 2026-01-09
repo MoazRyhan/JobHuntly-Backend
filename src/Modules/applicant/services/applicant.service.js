@@ -13,7 +13,7 @@ export const getMyJobApplicationsService = async (userId) => {
   }
 
   const applications = await JobApplicationModel
-  .find({ seekerId: userId })
+  .find({ userId: userId })
   .populate({
     path: 'jobId',
     select: 'title companyId',
