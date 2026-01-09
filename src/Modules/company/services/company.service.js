@@ -3,14 +3,14 @@ import JobApplicationModel from "../../../DB/Models/JobApplicationModel.js";
 import JobModel from "../../../DB/Models/JobModel.js";
 
 
-export const getCompanyByIdService=async(companyId)=>{
-    const company=await CompanyModel.findById(companyId);
-    return company;
+export const getCompanyByIdService = async (companyId) => {
+  const company = await CompanyModel.findById(companyId);
+  return company;
 }
 
-export const createCompanyService= async(companyData)=>{
-    const company= await CompanyModel.create(companyData);
-    return company;
+export const createCompanyService = async (companyData) => {
+  const company = await CompanyModel.create(companyData);
+  return company;
 }
 
 
@@ -59,13 +59,16 @@ export const getJobsByCompanyIdService = async (
   if (filters.status === "closed") {
     query.isLive = false;
   }
+  if (filters.workplaceModel) {
+  query.workplaceModel = filters.workplaceModel;
+  }
 
   console.log("Final Job Query:", query);
 
   const totalJobs = await JobModel.countDocuments(query);
 
   const jobs = await JobModel.find(query)
-    .select("title employmentType dueDate isLive createdAt")
+    .select("title employmentType  workplaceModel dueDate isLive createdAt")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -86,6 +89,7 @@ export const getJobsByCompanyIdService = async (
         _id: job._id,
         title: job.title,
         jobType: job.employmentType,
+        workplaceModel: job.workplaceModel,
         status,
         dueDate: job.dueDate,
         createdAt: job.createdAt,
@@ -102,3 +106,8 @@ export const getJobsByCompanyIdService = async (
     totalPages: Math.ceil(totalJobs / limit),
   };
 };
+
+export const getAllCompaniesService = async () => {
+  const companies = await CompanyModel.find().select('name logoUrl')
+  return companies
+}

@@ -20,6 +20,7 @@ dotenv.config()
 const bootstrap = () => {
   const app = express()
 
+  // for connection with front end 
   app.use(
     cors({
       origin: ['http://localhost:5173', 'http://localhost:3001' , "*" ],
@@ -62,12 +63,59 @@ const bootstrap = () => {
   //all the routers
   routerHandler(app, express)
 
-  const server = app.listen(process.env.PORT || 3000, (error) => {
-    if (error) {
-      throw error // e.g. EADDRINUSE
-    }
-    console.log(`Listening on =========> ${JSON.stringify(server.address())}`)
-  })
+
+  // Wrap the app in an HTTP Server
+  const httpServer = http.createServer(app);
+
+  // Initialize Socket.io
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "http://localhost:5173",
+      credentials: true,
+    },
+  });
+
+  // Track users
+  let activeUsers = {};
+
+  io.on("connection", (socket) => {
+    //console.log("A user connected:", socket.id);
+
+    socket.on("register", (userId) => {
+      activeUsers[userId] = socket.id;
+      //console.log(`User ${userId} registered with socket ${socket.id}`);
+    });
+
+    socket.on("disconnect", () => {
+      // Remove user from active list
+      for (const userId in activeUsers) {
+        if (activeUsers[userId] === socket.id) {
+          delete activeUsers[userId];
+          break;
+        }
+      }
+    });
+  });
+
+  // Export io and activeUsers so that controllers can use them
+  app.set("io", io);
+  app.set("activeUsers", activeUsers);
+
+
+  // 7. Use httpServer.listen INSTEAD of app.listen
+  const port = process.env.PORT || 3000;
+  httpServer.listen(port, () => {
+    console.log(`Server & Socket listening on port ${port}`);
+    //console.log(`Listening on =========> ${JSON.stringify(server.address())}`)
+  });
+
+
+  // const server = app.listen(process.env.PORT || 3000, (error) => {
+  //   if (error) {
+  //     throw error // e.g. EADDRINUSE
+  //   }
+  //   console.log(`Listening on =========> ${JSON.stringify(server.address())}`)
+  // })
 }
 
 export default bootstrap

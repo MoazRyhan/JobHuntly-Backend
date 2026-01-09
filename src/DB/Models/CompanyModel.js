@@ -41,15 +41,14 @@ const CompanySchema = new mongoose.Schema(
     countries: [{ code: String, name: String }],
         
     /* ================= CONTACT / SOCIAL LINKS ================= */
-    links: [
-    {
-      type: {
-        type: String,
-        enum: Object.values(COMPANY_LINK_TYPE),
-      },
-      value: String,
+    socialLinks: {
+      linkedin: String,
+      twitter: String,
+      instagram: String,
+      website: String,
+      github: String,
     },
-    ],
+
 
     /* ================= TECH STACK ================= */
     techStack: [

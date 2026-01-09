@@ -20,7 +20,15 @@ export const getProfile = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: result });
 });
 
+export const getSkills = asyncHandler(async (req, res) => {
+  const userId = req.login_user._id
 
+  const result = await SettingsApplicantService.getSkills(userId)
+  res.status(200).json({
+    success: true,
+    data: result,
+  })
+})
 
 
 
@@ -56,6 +64,42 @@ export const getCompanyProfile = asyncHandler(async (req, res) => {
 
 
 
+/* ================= Company images ================= */
+export const uploadCompanyImages = asyncHandler(async (req, res) => {
+  // console.log( req );
+  
+  const result = await SettingsRecruiterService.uploadCompanyImages({
+    files: req.files,
+    req,
+    role :req.login_user.role,
+    userId : req.login_user._id
+  })
+
+  res.status(200).json({
+    success: true,
+    ...result,
+  })
+})
+
+export const deleteCompanyImage = async (req, res, next) => {
+
+    const { imageUrl } = req.body
+    const { _id: userId, role } = req.login_user
+
+    const result = await SettingsRecruiterService.removeCompanyImage({
+      imageUrl,
+      role,
+      userId,
+    })
+
+    res.status(200).json({
+      success: true,
+      ...result,
+    })
+}
+
+
+
 //   ========================= for all
 
 
@@ -77,8 +121,12 @@ export const uploadLogo = asyncHandler(async (req, res) => {
   })
 })
 
+
+
 /* ================= BACKGROUND ================= */
 export const uploadBackground = asyncHandler(async (req, res) => {
+  // console.log( req );
+  
   const result = await SettingsApplicantService.uploadImage({
     file: req.file,
     req,
@@ -92,6 +140,7 @@ export const uploadBackground = asyncHandler(async (req, res) => {
     ...result,
   })
 })
+
 
 
 

@@ -21,6 +21,8 @@ SettingsRouter.put("/updateProfile", SettingsController.updateProfile);
 
 SettingsRouter.get("/getProfile",SettingsController.getProfile);
 
+SettingsRouter.get("/getSkills",SettingsController.getSkills);
+
 
 
 
@@ -32,7 +34,14 @@ SettingsRouter.put("/updateProfileRecruiter",SettingsController.updateCompanyPro
 SettingsRouter.get("/getProfileRecruiter",SettingsController.getCompanyProfile);
 
 
+/* ================= Company  Images  ================= */
+SettingsRouter.post(
+  "/CompanyImages",
+  MulterLocalMiddleware("CompanyImages", ImageExtensions).array("files"),
+  SettingsController.uploadCompanyImages
+)
 
+SettingsRouter.delete( "/CompanyImages",SettingsController.deleteCompanyImage)
 
 
 
@@ -61,6 +70,8 @@ SettingsRouter.post(
   MulterLocalMiddleware("background", ImageExtensions).single("file"),
   SettingsController.uploadBackground
 )
+
+
 
 
 /* ================= EMAIL ================= */

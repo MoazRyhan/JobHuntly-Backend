@@ -1,10 +1,12 @@
-import {Router} from'express'
-import { getCompanyById, createCompany,getMyCompanyJobs} from './controllers/company.controller.js';
-import { AuthenticationMiddleware,AuthorizationMiddleware } from '../../Middlewares/AuthenticationMiddleware.js';
+import { Router } from 'express'
+import { getCompanyById, createCompany, getMyCompanyJobs, getAllCompanies } from './controllers/company.controller.js';
+import { AuthenticationMiddleware, AuthorizationMiddleware } from '../../Middlewares/AuthenticationMiddleware.js';
 
-const router=Router();
+const router = Router();
 
-router.get("/:companyId",AuthenticationMiddleware(), getCompanyById);
+router.get("/", getAllCompanies)
+
+router.get("/:companyId",getCompanyById);
 
 router.post("/", createCompany);
 
