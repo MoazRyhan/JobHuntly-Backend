@@ -208,7 +208,7 @@ export const uploadImage = async ({
     }
 
     if (folder === "logo") company.logoUrl = fileUrl
-    if (folder === "background") company.backGroundUrl = fileUrl
+
 
     await company.save()
   }
@@ -218,6 +218,8 @@ export const uploadImage = async ({
     url: fileUrl,
   }
 }
+
+
 
 
 export const changeEmail = async (userId, { newEmail }) => {
