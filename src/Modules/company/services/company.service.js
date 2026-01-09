@@ -3,14 +3,14 @@ import JobApplicationModel from "../../../DB/Models/JobApplicationModel.js";
 import JobModel from "../../../DB/Models/JobModel.js";
 
 
-export const getCompanyByIdService=async(companyId)=>{
-    const company=await CompanyModel.findById(companyId);
-    return company;
+export const getCompanyByIdService = async (companyId) => {
+  const company = await CompanyModel.findById(companyId);
+  return company;
 }
 
-export const createCompanyService= async(companyData)=>{
-    const company= await CompanyModel.create(companyData);
-    return company;
+export const createCompanyService = async (companyData) => {
+  const company = await CompanyModel.create(companyData);
+  return company;
 }
 
 
@@ -106,3 +106,8 @@ export const getJobsByCompanyIdService = async (
     totalPages: Math.ceil(totalJobs / limit),
   };
 };
+
+export const getAllCompaniesService = async () => {
+  const companies = await CompanyModel.find().select('name logoUrl')
+  return companies
+}
