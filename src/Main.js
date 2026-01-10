@@ -25,15 +25,15 @@ const bootstrap = () => {
   // for connection with front end 
   app.use(
     cors({
-      origin: ['http://localhost:5173', 'http://localhost:3001' , "*" ],
+      origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_ADMIN ],
       credentials: true,
     })
   )
 
-  // app.use(
-  //   helmet({ xContentTypeOptions: false, crossOriginOpenerPolicy: true }) 
-  // );
-  // app.use(general_rate_limit);
+  app.use(
+    helmet({ xContentTypeOptions: false, crossOriginOpenerPolicy: true }) 
+  );
+  app.use(general_rate_limit);
 
   // Stripe webhook needs raw body BEFORE express.json() parses it
   // This must come before app.use(express.json())
@@ -54,9 +54,6 @@ const bootstrap = () => {
 
   // test for production
   app.get('/test', async (req, res, next) => {
-    if (req.params.value == 'prod') {
-      return next('router')
-    }
     res
       .status(200)
       .json({ message: 'hello from prod test production ', mms: req.xhr })
@@ -72,7 +69,7 @@ const bootstrap = () => {
   // Initialize Socket.io
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: process.env.FRONTEND_URL,
       credentials: true,
     },
   });
@@ -107,17 +104,10 @@ const bootstrap = () => {
   // 7. Use httpServer.listen INSTEAD of app.listen
   const port = process.env.PORT || 3000;
   httpServer.listen(port, () => {
-    console.log(`Server & Socket listening on port ${port}`);
-    //console.log(`Listening on =========> ${JSON.stringify(server.address())}`)
+    console.log(`Listening on =========> ${JSON.stringify(httpServer.address())}`)
   });
 
 
-  // const server = app.listen(process.env.PORT || 3000, (error) => {
-  //   if (error) {
-  //     throw error // e.g. EADDRINUSE
-  //   }
-  //   console.log(`Listening on =========> ${JSON.stringify(server.address())}`)
-  // })
 }
 
 export default bootstrap
